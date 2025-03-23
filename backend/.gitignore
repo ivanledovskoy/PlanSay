@@ -15,3 +15,9 @@ dist/
 *.py,cover
 .cache/
 
+# certs
+/certs
+
+# database
+2fa.db
+
