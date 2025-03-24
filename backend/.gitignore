@@ -15,3 +15,5 @@ dist/
 *.py,cover
 .cache/
 
+# База данных
+*.db
