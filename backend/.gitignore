@@ -15,5 +15,14 @@ dist/
 *.py,cover
 .cache/
 
-# База данных
-*.db
+# certs
+/certs
+
+# database
+2fa.db
+
+# certs
+/certs
+
+# database
+2fa.db
