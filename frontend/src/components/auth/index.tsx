@@ -8,7 +8,7 @@ import './style.css'
 
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 
-import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert } from '@mui/material';
+import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert, Typography } from '@mui/material';
 import { instance } from '../../utils/axios';
 import { useAppDispatch } from '../../utils/hook';
 import { login } from '../../store/slice/auth';
@@ -26,14 +26,10 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
         }, handleSubmit
     } = useForm()
 
-    console.log(errors)
-
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
     const handleSubmitForm = async (data: any) => {
-        console.log(data)
-        console.log("hehehe")
         if (location.pathname === '/login') {
             try {
                 const userData = {
@@ -81,7 +77,7 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                 }
             }
             else {
-                console.log(AppErrors.PasswordDoNotMatch)
+                setNotification(AppErrors.PasswordDoNotMatch)
             }
         }
     }
@@ -128,7 +124,8 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                     padding={5}
                     borderRadius={5}
                     boxShadow={'5px 5px 10px #ccc'}
-                >
+                    sx={{ backgroundColor: "#f5f5f5"}}>
+                    <Typography variant="h2" fontWeight='fontWeightMedium' fontFamily='Poppins' textAlign='center'>PlanSay</Typography>
                     {
                     (location.pathname === '/login' 
                         ? <LoginPage navigate={navigate} register={register} errors={errors}/> : location.pathname === '/register' 

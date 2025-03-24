@@ -7,7 +7,7 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
 
   return (
     <>
-      <Typography variant="h2" fontFamily='Poppins' textAlign='center'>Авторизация</Typography>
+      <Typography variant="h3" fontFamily='Poppins' textAlign='center'>Авторизация</Typography>
       <Typography variant="body1" fontFamily='Poppins' textAlign='center'>Введите ваш логин и пароль</Typography>
       <TextField
         error={!!errors.email}
