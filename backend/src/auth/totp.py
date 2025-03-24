@@ -79,25 +79,25 @@ def get_two_factor_auth(user_id: str, db=Depends(get_db)) -> TwoFactorAuth:
     return TwoFactorAuth(user_id, secret_key)
 
 
-@app.post('/enable-2fa/{user_id}')
-def enable_2fa(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
-    return {'secret_key': two_factor_auth.secret_key}
+# @app.post('/enable-2fa/{user_id}')
+# def enable_2fa(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
+#     return {'secret_key': two_factor_auth.secret_key}
 
 
-@app.get('/generate-qr/{user_id}')
-def generate_qr(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
-    qr_code = two_factor_auth.qr_code
-    if qr_code is None:
-        raise HTTPException(status_code=404, detail='User not found')
-    return StreamingResponse(io.BytesIO(qr_code), media_type='image/png')
+# @app.get('/generate-qr/{user_id}')
+# def generate_qr(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
+#     qr_code = two_factor_auth.qr_code
+#     if qr_code is None:
+#         raise HTTPException(status_code=404, detail='User not found')
+#     return StreamingResponse(io.BytesIO(qr_code), media_type='image/png')
 
 
-@app.post('/verify-totp/{user_id}')
-def verify_totp(
-    totp_code: str,
-    two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth),
-):
-    is_valid = two_factor_auth.verify_totp_code(totp_code)
-    if not is_valid:
-        raise HTTPException(status_code=400, detail='Code invalid')
-    return {'valid': is_valid}
+# @app.post('/verify-totp/{user_id}')
+# def verify_totp(
+#     totp_code: str,
+#     two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth),
+# ):
+#     is_valid = two_factor_auth.verify_totp_code(totp_code)
+#     if not is_valid:
+#         raise HTTPException(status_code=400, detail='Code invalid')
+#     return {'valid': is_valid}
