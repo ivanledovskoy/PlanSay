@@ -1,120 +1,103 @@
+from fastapi import FastAPI, Depends, Form, HTTPException, status
+from database import User
+from auth.utils import validate_password, encode_jwt
+from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
+from auth.totp import TwoFactorAuth
 import base64
 import io
-import secrets
-from typing import Optional
 
-import qrcode
-from fastapi import Depends
-from fastapi import FastAPI
-from fastapi import HTTPException
-from fastapi.responses import StreamingResponse
-from pyotp import TOTP
-from sqlalchemy import Column
-from sqlalchemy import create_engine
-from sqlalchemy import String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-Base = declarative_base()
-engine = create_engine('sqlite:///./2fa.db')
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-class User(Base):
-    __tablename__ = 'users'
-    user_id = Column(String, primary_key=True, index=True)
-    secret_key = Column(String, index=True)
-
-
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+origins = ["*"]
 
-class TwoFactorAuth:
-    def __init__(self, user_id: str, secret_key: str):
-        self._user_id = user_id
-        self._secret_key = secret_key
-        self._totp = TOTP(self._secret_key)
-        self._qr_cache: Optional[bytes] = None
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    @property
-    def totp(self) -> TOTP:
-        return self._totp
+class TokenInfo(BaseModel):
+    access_token: str
+    token_type: str
 
-    @property
-    def secret_key(self) -> str:
-        return self._secret_key
+# @app.post("/login/", response_model=TokenInfo)
+# def auth_user_issue_jwt(
+#     user: User = Depends(validate_auth_user)
+# ):
+    # jwt_payload = {
+    #     "sub": user.user_id,
+    #     "username": user.username
+    # }
+    # token = encode_jwt(jwt_payload)
+    # return TokenInfo(
+    #     access_token=token,
+    #     token_type="Bearer"
+    # )
 
-    @staticmethod
-    def _generate_secret_key() -> str:
-        secret_bytes = secrets.token_bytes(20)
-        secret_key = base64.b32encode(secret_bytes).decode('utf-8')
-        return secret_key
 
-    @staticmethod
-    def get_or_create_secret_key(db, user_id: str) -> str:
-        db_user = db.query(User).filter(User.user_id == user_id).first()
-        if db_user:
-            return db_user.secret_key
-        secret_key = TwoFactorAuth._generate_secret_key()
-        db.add(User(user_id=user_id, secret_key=secret_key))
-        db.commit()
-        return secret_key
+class UserLoginSchema(BaseModel):
+    email: str
+    password: str
+    secondFactor: str
 
-    def _create_qr_code(self) -> bytes:
-        uri = self.totp.provisioning_uri(
-            name=self._user_id,
-            issuer_name='2FA',
+class UserRegisterSchema(BaseModel):
+    email: str
+    password: str
+
+def regUser(creds: UserRegisterSchema):
+    dbUser = User.getUserByEmail(creds.email)
+    if dbUser:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User with this email already exists!"
         )
-        img = qrcode.make(uri)
-        img_byte_array = io.BytesIO()
-        img.save(img_byte_array, format='PNG')
-        img_byte_array.seek(0)
-        return img_byte_array.getvalue()
+    dbUser = User(creds.email, creds.password)
+    dbUser.addToDatabase()
 
-    @property
-    def qr_code(self) -> bytes:
-        if self._qr_cache is None:
-            self._qr_cache = self._create_qr_code()
-        return self._qr_cache
+    secret_key = dbUser.getSecretKey()
+    return TwoFactorAuth(dbUser.email, secret_key)
 
-    def verify_totp_code(self, totp_code: str) -> bool:
-        return self.totp.verify(totp_code)
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def get_two_factor_auth(user_id: str, db=Depends(get_db)) -> TwoFactorAuth:
-    secret_key = TwoFactorAuth.get_or_create_secret_key(db, user_id)
-    return TwoFactorAuth(user_id, secret_key)
-
-
-@app.post('/enable-2fa/{user_id}')
-def enable_2fa(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
-    return {'secret_key': two_factor_auth.secret_key}
-
-
-@app.get('/generate-qr/{user_id}')
-def generate_qr(two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth)):
+@app.post('/register')
+def generate_qr(two_factor_auth: TwoFactorAuth = Depends(regUser)):
     qr_code = two_factor_auth.qr_code
     if qr_code is None:
         raise HTTPException(status_code=404, detail='User not found')
-    return StreamingResponse(io.BytesIO(qr_code), media_type='image/png')
+    return base64.b64encode(qr_code)
 
+@app.post("/login/")
+def reg_user(creds: UserLoginSchema):
+    dbUser = User.getUserByEmail(creds.email)
+    if dbUser is None or not dbUser.verifyPassword(creds.password):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Wrond email or password!"
+        )
+    
+    if not dbUser.active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User inactive"
+        )
+    
 
-@app.post('/verify-totp/{user_id}')
-def verify_totp(
-    totp_code: str,
-    two_factor_auth: TwoFactorAuth = Depends(get_two_factor_auth),
-):
-    is_valid = two_factor_auth.verify_totp_code(totp_code)
+    secret_key = dbUser.getSecretKey()
+    two_factor_auth = TwoFactorAuth(dbUser.email, secret_key)
+
+    is_valid = two_factor_auth.verify_totp_code(creds.secondFactor)
     if not is_valid:
         raise HTTPException(status_code=400, detail='Code invalid')
-    return {'valid': is_valid}
+    
+    jwt_payload = {
+        "sub": dbUser.user_id,
+        "email": dbUser.email
+    }
+    token = encode_jwt(jwt_payload)
+    return TokenInfo(
+        access_token=token,
+        token_type="Bearer"
+    )
