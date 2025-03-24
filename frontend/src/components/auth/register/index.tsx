@@ -7,7 +7,7 @@ const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Elem
 
   return (
     <>
-      <Typography variant="h2" fontFamily='Poppins' textAlign='center'>Регистрация</Typography>
+      <Typography variant="h3" fontFamily='Poppins' textAlign='center'>Регистрация</Typography>
       <Typography variant="body1" fontFamily='Poppins' textAlign='center'>Введите данные для регистраци</Typography>
       <TextField 
         error={!!errors.email}
