@@ -32,7 +32,9 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
         placeholder='Введите пароль' 
         helperText={errors.password ? `${errors.password.message}` : ''}
         {...register('password', {
-          required: 'Это обязательное поле'
+          required: 'Это обязательное поле',
+          minLength: 8,
+          maxLength: 30
         })}
         />
       <TextField 

@@ -32,7 +32,9 @@ const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Elem
         placeholder='Введите пароль' 
         helperText={errors.password ? `${errors.password.message}` : ''}
         {...register('password', {
-          required: 'Это обязательное поле'
+          required: 'Это обязательное поле',
+          minLength: 8,
+          maxLength: 30
         })}
         />
       <TextField 
@@ -45,7 +47,9 @@ const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Elem
         placeholder='Повторите пароль' 
         helperText={errors.repeatPassword ? `${errors.repeatPassword.message}` : ''}
         {...register('repeatPassword', {
-          required: 'Это обязательное поле'
+          required: 'Это обязательное поле',
+          minLength: 8,
+          maxLength: 30
         })}
         />
       <Button type='submit' sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Регистрация</Button>
