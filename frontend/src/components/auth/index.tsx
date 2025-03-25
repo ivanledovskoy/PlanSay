@@ -87,14 +87,27 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
     };
 
     const handleNext = async (data: any) => {
-        const userData = {
-            email: data.email,
-            password: data.password,
-            secondFactor: data.secondFactorRegister
+        try {
+            const userData = {
+                email: data.email,
+                password: data.password,
+                secondFactor: data.secondFactorRegister
+            }
+            const user = await instance.post('/login/', userData)
+            dispatch(login(user.data))
+            navigate('/')
         }
-        const user = await instance.post('/login/', userData)
-        dispatch(login(user.data))
-        navigate('/')
+        catch (e) {
+            if (e instanceof AxiosError) {
+                if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
+                    setNotification(e.response?.data['detail'])
+                }
+                else {
+                    setNotification(e.response?.data["Unknown error!"])
+                }
+            }
+            return e
+        }
     };
 
     const [notification, setNotification] = useState('');
@@ -110,7 +123,6 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
       setNotification('');
     };
     
-    // WHY handleSubmitForm not work????
     return (
         <div className='root'>
             <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
@@ -125,7 +137,6 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                     borderRadius={5}
                     boxShadow={'5px 5px 10px #ccc'}
                     sx={{ backgroundColor: "#f5f5f5"}}>
-                    <Typography variant="h2" fontWeight='fontWeightMedium' fontFamily='Poppins' textAlign='center'>PlanSay</Typography>
                     {
                     (location.pathname === '/login' 
                         ? <LoginPage navigate={navigate} register={register} errors={errors}/> : location.pathname === '/register' 
