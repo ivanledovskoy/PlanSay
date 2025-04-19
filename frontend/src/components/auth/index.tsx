@@ -8,7 +8,7 @@ import './style.css'
 
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 
-import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert, Typography } from '@mui/material';
+import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert } from '@mui/material';
 import { instance } from '../../utils/axios';
 import { useAppDispatch } from '../../utils/hook';
 import { login } from '../../store/slice/auth';
