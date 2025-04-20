@@ -17,3 +17,21 @@
 .aligncenter {
     text-align: center;
 }
+
+.background {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    .form {
+        width: 80%;
+        .incitingText {
+            color: #1900D5;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+    }
+}

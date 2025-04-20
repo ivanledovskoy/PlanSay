@@ -21,19 +21,26 @@ export interface IPropsRegister <
 }
 
 export interface IAuthState {
-    user: IPublicUser,
-    isLogged: boolean
+    token: string,
+    qrCode: string,
+    isLogged: boolean,
+    isLoading: boolean
 }
 
-interface IPublicUser {
-    id: number | null,
-    email: string,
-    tasks: [ITasks]
+export interface IRegisterState {
+    qrCode: string,
+    isLogged: boolean,
+    isLoading: boolean
 }
 
-interface ITasks {
-    id: number | null,
-    name: string,
-    date: string
+export interface ILoginData {
+    email: string
+    password: string
+    secondFactor: string
+}
+
+export interface IRegisterData {
+    email: string
+    password: string
 }
 

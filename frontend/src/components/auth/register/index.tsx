@@ -1,9 +1,12 @@
 import React, { JSX } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 import { IPropsRegister } from '../../../common/types/auth';
+import AppLoadingButton from '../../loading-button';
+import { useAppSelector } from '../../../utils/hook';
 
 const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Element => {
   const {navigate, register, errors} = props
+  const loading = useAppSelector(state => state.auth.isLoading)
 
   return (
     <>
@@ -52,7 +55,7 @@ const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Elem
           maxLength: 30
         })}
         />
-      <Button type='submit' sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Регистрация</Button>
+      <AppLoadingButton loading={loading} type='submit' sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Регистрация</AppLoadingButton>
       <Typography variant="body1" sx={{fontFamily:'Poppins'}}>Уже есть аккаунт на PlanSay?<span className='incitingText' onClick={() => navigate('/login')}>Авторизация</span></Typography>
     </>
   );

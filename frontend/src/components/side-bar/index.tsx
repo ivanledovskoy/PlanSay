@@ -3,19 +3,18 @@ import { useStyles } from "./styles";
 import {
     Box, 
     Drawer, 
-    Divider, 
-    IconButton, 
     List, 
     ListItem, 
     ListItemButton,
     ListItemIcon,
     ListItemText,
-    Typography
+    Typography,
+    useTheme
 } from '@mui/material'
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "../flex-between";
-import { navMenu } from "../../common/moks/navigate";
-import {CalendarMonth, AlarmOn, HomeOutlined} from '@mui/icons-material';
+import { accountMenu, navMenu } from "../../common/moks/navigate";
+import { tokens } from "../../theme";
 
 const SidebarComponent = (props: any) => {
   const [active, setActive] = useState('')
@@ -23,16 +22,22 @@ const SidebarComponent = (props: any) => {
   const classes = useStyles()
   const {pathname} = useLocation()
   const navigate = useNavigate()
+  const theme = useTheme()
+  const colors = tokens(theme.palette.mode)
 
   useEffect(() => {
-    setActive(pathname.substring(1))
+    setActive(pathname)
   }, 
   [pathname])
 
-  const renderNavMenu = navMenu.map((element) => {
-    return (
+  const renderMenu = (menu: any) => {
+    return menu.map((element: any) => 
         <ListItem key={element.id}>
-            <ListItemButton onClick={() => navigate(`${element.path}`)}>
+            <ListItemButton 
+            //className={active === element.path ? classes.active : classes.navItem} 
+            className={active === element.path ? classes.active : classes.navItem} 
+            //className={classes.active}
+            onClick={() => navigate(`${element.path}`)}>
                 <ListItemIcon>
                     {element.icon}
                 </ListItemIcon>
@@ -42,7 +47,7 @@ const SidebarComponent = (props: any) => {
             </ListItemButton>
         </ListItem>
     )
-  })
+}
 
   return (
     <Box component='nav'>
@@ -52,33 +57,37 @@ const SidebarComponent = (props: any) => {
                 onClose={() => setIsOpen(false)}
                 variant="persistent"
                 anchor="left"
-                sx= {{
+                sx={{
                     width: drawerWidth,
                     '& .MuiDrawer-paper': {
-                        color: "#7C7C7C",
-                        backgroundColor: "#D0D0D0",
+                        color: theme.palette.secondary.main,
+                        backgroundColor: theme.palette.primary.main,
                         boxSizing: 'border-box',
                         width: drawerWidth
                     }
                 }}
             >
-                <Box width='100%'>
+                <Box width='100%' sx = {{borderBottom:`1px solid ${colors.borderColor}`}}>
                     <Box>
                         <FlexBetween>
-                            <Box display='flex' alignItems='center' gap='10px'>
-                                <Typography>
+                            <Box className={classes.brand}>
+                                <Typography 
+                                    variant="h1"
+                                    color = {theme.palette.mode === 'dark' ? colors.white.DEFAULT : colors.black.DEFAULT}>
                                     PlanSay
                                 </Typography>
                             </Box>
-                            <IconButton> 
-                                <Typography>
-                                    Сегодня
-                                </Typography>
-                            </IconButton>
                         </FlexBetween>
                     </Box>
+                    <List
+                        sx={{marginBottom: '150px'}}
+                    >
+                        {renderMenu(navMenu)}
+                    </List>
+                </Box> 
+                <Box width='100%'>
                     <List>
-                        {renderNavMenu}
+                        {renderMenu(accountMenu)}
                     </List>
                 </Box> 
             </Drawer>

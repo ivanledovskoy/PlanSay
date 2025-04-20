@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { ILayout } from "../../common/types/auth/layout";
+import { ILayout } from "../../common/types/layout";
 // import TopBarComponent from "../top-bar";
 import { useLocation } from "react-router-dom";
 import { Box } from "@mui/material";
