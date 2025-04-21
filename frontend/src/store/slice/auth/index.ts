@@ -1,15 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { IAuthState, IRegisterState } from "../../../common/types/auth"
+import { IAuthState } from "../../../common/types/auth"
 import { loginUser, registerUser } from "../../thunks/auth"
 
 export const initialState : IAuthState = {
     token: '',
-    qrCode: '',
-    isLogged: false,
-    isLoading: false
-}
-
-export const registerState : IRegisterState = {
     qrCode: '',
     isLogged: false,
     isLoading: false
@@ -29,7 +23,7 @@ export const authSlice = createSlice({
             state.isLogged = true
             state.isLoading = false
         })
-        builder.addCase(loginUser.rejected, (state, action) => {
+        builder.addCase(loginUser.rejected, (state, action: any) => {
             state.isLogged = false
             state.isLoading = false
         })
@@ -41,7 +35,7 @@ export const authSlice = createSlice({
             state.qrCode = action.payload
             state.isLoading = false
         })
-        builder.addCase(registerUser.rejected, (state, action) => {
+        builder.addCase(registerUser.rejected, (state, action: any) => {
             state.isLogged = false
             state.isLoading = false
         })

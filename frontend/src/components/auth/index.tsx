@@ -9,7 +9,6 @@ import './style.css'
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 
 import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert } from '@mui/material';
-import { instance } from '../../utils/axios';
 import { useAppDispatch } from '../../utils/hook';
 import { AppErrors } from '../../common/errors';
 import { AxiosError } from 'axios';
@@ -34,43 +33,23 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
 
     const handleSubmitForm = async (data: any) => {
         if (location.pathname === '/login') {
-            try {
-                await dispatch(loginUser(data))
+            const resp = await dispatch(loginUser(data))
+            if (resp.type === "/login/rejected") {
+                setNotification(resp.payload)
+            }
+            else {
                 navigate('/')
-            } 
-            catch (e) {
-                if (e instanceof AxiosError) {
-                    if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                        setNotification(e.response?.data['detail'])
-                    }
-                    else {
-                        setNotification(e.response?.data["Unknown error!"])
-                    }
-                }
-                return e
             }
         }
         else {
             if (data.password === data.repeatPassword) {
-                try {
-                    const userData = {
-                        email: data.email,
-                        password: data.password
-                    }
-                    const totpKey : any = await dispatch(registerUser(data))
-                    setQrCode(totpKey.payload)
-                    setOpen2fa(true)
+                const resp : any = await dispatch(registerUser(data))
+                if (resp.type === "/register/rejected") {
+                    setNotification(resp.payload)
                 }
-                catch (e) {
-                    if (e instanceof AxiosError) {
-                        if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                            setNotification(e.response?.data['detail'])
-                        }
-                        else {
-                            setNotification(e.response?.data["Unknown error!"])
-                        }
-                    }
-                    return e
+                else {
+                    setQrCode(resp.payload)
+                    setOpen2fa(true)
                 }
             }
             else {
@@ -84,20 +63,12 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
     };
 
     const handleNext = async (data: any) => {
-        try {
-            await dispatch(loginUser(data))
-            navigate('/')
+        const resp = await dispatch(loginUser(data))
+        if (resp.type === "/login/rejected") {
+            setNotification(resp.payload)
         }
-        catch (e) {
-            if (e instanceof AxiosError) {
-                if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                    setNotification(e.response?.data['detail'])
-                }
-                else {
-                    setNotification(e.response?.data["Unknown error!"])
-                }
-            }
-            return e
+        else {
+            navigate('/')
         }
     };
 

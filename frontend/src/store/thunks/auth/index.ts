@@ -15,7 +15,7 @@ export const loginUser = createAsyncThunk(
                 return rejectWithValue(e.response?.data['detail'])
             }
             else {
-                return rejectWithValue("Unknown error!")
+                return rejectWithValue("Неизвестная ошибка!")
             }
         }
     }
@@ -33,7 +33,7 @@ export const registerUser = createAsyncThunk(
                 return rejectWithValue(e.response?.data['detail'])
             }
             else {
-                return rejectWithValue("Unknown error!")
+                return rejectWithValue("Неизвестная ошибка!")
             }
         }
     }

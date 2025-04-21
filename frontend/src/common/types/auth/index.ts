@@ -27,12 +27,6 @@ export interface IAuthState {
     isLoading: boolean
 }
 
-export interface IRegisterState {
-    qrCode: string,
-    isLogged: boolean,
-    isLoading: boolean
-}
-
 export interface ILoginData {
     email: string
     password: string
