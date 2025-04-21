@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import admin_router, auth_router, general_router
 from database import Base, engine
+
 app = FastAPI()
 
 app.add_middleware(
