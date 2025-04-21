@@ -1,9 +1,11 @@
 import base64
 from fastapi import Depends, HTTPException, status, APIRouter
 from auth.totp import TwoFactorAuth
-from auth.utils import encode_jwt
+from auth.utils import encode_jwt, decode_jwt
 from models.users import User
 from pydantic import BaseModel, EmailStr, Field
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jwt.exceptions import InvalidTokenError
 
 
 class TokenInfo(BaseModel):
@@ -67,8 +69,8 @@ def login_user(creds: UserLoginSchema):
         raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
     
     jwt_payload = {
-        "sub": dbUser.user_id,
-        "email": dbUser.email
+        "sub": dbUser.email,
+        "user_id": dbUser.user_id
     }
     token = encode_jwt(jwt_payload)
     return TokenInfo(
@@ -80,3 +82,40 @@ def login_user(creds: UserLoginSchema):
 @router.post("/password-change", summary="Смена пароля")
 def password_change():
     ...
+
+http_bearer = HTTPBearer()
+
+def get_current_token_payload(
+        credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+) -> UserLoginSchema:
+    token = credentials.credentials
+    try:
+        payload = decode_jwt(token=token)
+    except InvalidTokenError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token error: {e}")
+    return payload
+
+def get_current_auth_user(
+        payload: dict = Depends(get_current_token_payload),
+) -> UserLoginSchema:
+    email: EmailStr | None = payload.get("sub")
+    if user := User.getUserByEmail(email):
+        return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalid (User not found)")
+
+
+def get_current_active_auth_user(
+        dbUser: UserLoginSchema = Depends(get_current_auth_user),
+):
+    if dbUser.active:
+        return dbUser
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active")
+
+@router.get("/users/me")
+def auth_user_check_self_info(
+    dbUser: UserLoginSchema = Depends(get_current_active_auth_user),
+):
+    return{
+        "sub": dbUser.email,
+        "user_id": dbUser.user_id
+    }

@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship, Mapped
-from database import Base
+from database import Base, db
 from datetime import datetime
 
 
@@ -22,4 +22,3 @@ class Task(Base):
         self.create_data = create_data
         self.remember_data = remember_data
         self.user_id = user_id
-
