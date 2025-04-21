@@ -2,7 +2,7 @@ import base64
 from fastapi import Depends, HTTPException, status, APIRouter
 from auth.totp import TwoFactorAuth
 from auth.utils import encode_jwt
-from database import User
+from models.users import User
 from pydantic import BaseModel, EmailStr, Field
 
 
