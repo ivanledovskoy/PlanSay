@@ -1,7 +1,7 @@
 import base64
 from fastapi import Depends, HTTPException, status, APIRouter
 from auth.totp import TwoFactorAuth
-from auth.utils import encode_jwt
+from auth.utils import encode_jwt, decode_jwt
 from database import User
 from pydantic import BaseModel, EmailStr, Field
 
@@ -67,8 +67,8 @@ def login_user(creds: UserLoginSchema):
         raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
     
     jwt_payload = {
-        "sub": dbUser.user_id,
-        "email": dbUser.email
+        "sub": dbUser.email,
+        "user_id": dbUser.user_id
     }
     token = encode_jwt(jwt_payload)
     return TokenInfo(
