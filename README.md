@@ -8,7 +8,7 @@ Linux:
 ```
 cd frontend
 npm install
-npm start
+HTTPS=true npm start
 ```
 
 ### Backend
@@ -23,7 +23,7 @@ cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-fastapi dev src/main.py
+uvicorn src.main:app --host 192.168.152.138 --ssl-keyfile=/etc/nginx/ssl/nginx-selfsigned.key --ssl-certfile=/etc/nginx/ssl/nginx-selfsigned.crt
 ```
 
 Windows:
@@ -32,5 +32,5 @@ cd backend
 python -m venv venv
 venv\Scripts\activate.bat
 pip install -r requirements.txt
-fastapi dev src/main.py
+uvicorn src.main:app --host 192.168.152.138 --ssl-keyfile=/etc/nginx/ssl/nginx-selfsigned.key --ssl-certfile=/etc/nginx/ssl/nginx-selfsigned.crt
 ```
