@@ -11,7 +11,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: str | None = None
     remember_data: datetime | None = None
-    is_completed: bool | None
+    is_completed: bool | None = None
     description: str | None =  None
 
 class TaskResponse(BaseModel):

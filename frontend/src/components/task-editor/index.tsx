@@ -27,23 +27,17 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { IPropsTasks } from "../../common/types/tasks";
 import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
+import { useAppDispatch } from "../../utils/hook";
+import { updateTask } from "../../store/thunks/tasks";
+import { instance } from "../../utils/axios";
 
-const TaskEditorDialogNew = (props: IPropsTasks) => {
+export const TaskEditorDialogNew = (props: IPropsTasks) => {
     const { onClose_props, open_props, selectedElement_props, setSelectedElement_props } = props;
-    const [newDate, setNewDate] = useState<any>()
-    
-    const changeTitle = (value: any) =>  {
-      setSelectedElement_props({...selectedElement_props, title: value.target.value})
-      console.log(selectedElement_props)
-    }
-    
-    const changeDescription = (value: any) =>  {
-      setSelectedElement_props({...selectedElement_props, description: value.target.value})
-      console.log(selectedElement_props)
-    }
+    let newDate = ''
     
     const changeDate = (value: any) =>  {
-      setNewDate(value)
+      newDate = value.toISOString()
+      console.log(newDate)
     }
     
     function DateTimePickerViewRenderers() {
@@ -77,7 +71,15 @@ const TaskEditorDialogNew = (props: IPropsTasks) => {
     } = useForm()
 
     const handleSubmitForm = async (data: any) => {
-      console.log(data)
+      try {
+          if (newDate) {
+            data["remember_data"] = newDate
+          }
+          const tasks = await instance.put( `/tasks/${selectedElement_props.id}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+      } catch (error) {
+        console.log(error)
+      }
+      onClose_props()
     }
     
     return (

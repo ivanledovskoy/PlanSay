@@ -19,12 +19,14 @@ export const getTasks = createAsyncThunk(
     }
 )
 
-export const updateTasks = createAsyncThunk(
+export const updateTask = createAsyncThunk(
     '/tasks',
-    async (jwt_token: any, {rejectWithValue}) => {
+    async (data: any, {rejectWithValue}) => {
         try {
-            const tasks = await instance.get('/tasks/inbox', {headers: {'Authorization': `Bearer ${jwt_token}`}})
-            return tasks.data
+            console.log(data)
+            //const tasks = await instance.put( `/tasks/${123}`, {headers: {'Authorization': `Bearer ${jwt_token}`}})
+            //return tasks.data
+            return true
         } 
         catch (e: any) {
             if (e.response && e.response.data && e.response?.data['detail']) { 

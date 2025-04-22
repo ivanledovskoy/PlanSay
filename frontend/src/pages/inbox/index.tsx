@@ -44,9 +44,7 @@ const handleClickOpen = (element: any) => {
   setOpen(true);
 };
 
-const handleClose = (value: any) => {
-  console.log('new', selectedElement)
-  //////// OBJECT UPDATE SEND POST <3
+const handleClose = () => {
   setOpen(false);
 };
 
