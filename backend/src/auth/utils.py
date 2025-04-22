@@ -16,7 +16,7 @@ def encode_jwt(
         exp=expire,
         iat=now
     )
-    encoded = jwt.encode(payload, key, algorithm=algorithm)
+    encoded = jwt.encode(to_encode, key, algorithm=algorithm)
     return encoded
 
 
