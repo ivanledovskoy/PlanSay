@@ -56,8 +56,3 @@ def post_task(task_data: TaskCreate, db: Session = Depends(get_db), user = Depen
 @router.put("/tasks/{id}", summary="Обновление задачи пользователя")
 def put_task_by_id():
     ...
-
-
-@router.post("/search", summary="Полнотекстовый поиск")
-def search():
-    ...
