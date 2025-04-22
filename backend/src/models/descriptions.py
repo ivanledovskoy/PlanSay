@@ -7,7 +7,8 @@ from database import Base
 class Description(Base):
     __tablename__ = 'descriptions'
 
-    task_id = Column(Integer, ForeignKey('tasks.id'), primary_key=True)
+    id = Column(Integer, primary_key=True) 
+    task_id = Column(Integer, ForeignKey('tasks.id', ondelete='CASCADE'))
     value = Column(String)
     task: Mapped['Task'] = relationship("Task", back_populates="description")
 
