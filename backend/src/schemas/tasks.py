@@ -1,0 +1,16 @@
+from datetime import datetime
+from pydantic import BaseModel, Field
+from .description import DescriptionResponse
+
+class TaskCreate(BaseModel):
+    title: str = Field(..., min_length=3, max_length=255)
+    remember_data: datetime | None = None
+    description: str | None =  None
+
+class TaskResponse(BaseModel):
+    id: int
+    title: str
+    create_data: datetime
+    remember_data: datetime | None = None
+    user_id: int
+    description: DescriptionResponse | None = None
