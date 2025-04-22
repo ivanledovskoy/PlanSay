@@ -7,7 +7,7 @@ export const loginUser = createAsyncThunk(
     async (data: ILoginData, {rejectWithValue}) => {
         try {
             const token = await instance.post('/login', data)
-            sessionStorage.setItem('token', token.data)
+            sessionStorage.setItem('token', token.data.access_token)
             return token.data
         } 
         catch (e: any) {

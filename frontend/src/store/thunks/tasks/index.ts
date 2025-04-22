@@ -3,9 +3,9 @@ import { instance } from "../../../utils/axios";
 
 export const getTasks = createAsyncThunk(
     '/tasks',
-    async (data: any, {rejectWithValue}) => {
+    async (jwt_token: any, {rejectWithValue}) => {
         try {
-            const tasks = await instance.get('/tasks', data)
+            const tasks = await instance.get('/tasks/inbox', {headers: {'Authorization': `Bearer ${jwt_token}`}})
             return tasks.data
         } 
         catch (e: any) {
