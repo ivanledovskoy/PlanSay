@@ -6,6 +6,7 @@ import { useStyles } from "./styles";
 import {EditCalendar, Inbox, StarOutline} from '@mui/icons-material';
 import TopBarComponent from "../../components/top-bar";
 import TaskEditorDialogNew from "../../components/task-editor";
+import { ISelectedElement } from "../../common/types/tasks";
 
 const InboxComponent = () => {
   const dispatch = useAppDispatch()
@@ -43,9 +44,11 @@ const handleClickOpen = (element: any) => {
   setOpen(true);
 };
 
-const handleClose = (value: string) => {
+const handleClose = () => {
   setOpen(false);
 };
+
+console.log(selectedElement)
   
   return (
     <div>
@@ -58,6 +61,7 @@ const handleClose = (value: string) => {
         open_props={open}
         onClose_props={handleClose}
         selectedElement_props={selectedElement}
+        setSelectedElement_props={setSelectedElement}
       />
     </div>
   )
