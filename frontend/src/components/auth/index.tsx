@@ -8,12 +8,14 @@ import './style.css'
 
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 
-import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert, Typography } from '@mui/material';
-import { instance } from '../../utils/axios';
+import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert } from '@mui/material';
 import { useAppDispatch } from '../../utils/hook';
-import { login } from '../../store/slice/auth';
 import { AppErrors } from '../../common/errors';
 import { AxiosError } from 'axios';
+import { loginUser, registerUser } from '../../store/thunks/auth';
+
+// const URL = "https://i.imgur.com/L95wKD3.png"
+const URL = "https://i.imgur.com/F0UhuxJ.jpeg"
 
 const AuthRootComponent: React.FC  = (): JSX.Element => {
     const [open2fa, setOpen2fa] = useState(false)
@@ -31,49 +33,23 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
 
     const handleSubmitForm = async (data: any) => {
         if (location.pathname === '/login') {
-            try {
-                const userData = {
-                    email: data.email,
-                    password: data.password,
-                    secondFactor: data.secondFactor
-                }
-                const user = await instance.post('/login', userData)
-                dispatch(login(user.data))
+            const resp = await dispatch(loginUser(data))
+            if (resp.type === "/login/rejected") {
+                setNotification(resp.payload)
+            }
+            else {
                 navigate('/')
-            } 
-            catch (e) {
-                if (e instanceof AxiosError) {
-                    if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                        setNotification(e.response?.data['detail'])
-                    }
-                    else {
-                        setNotification(e.response?.data["Unknown error!"])
-                    }
-                }
-                return e
             }
         }
         else {
             if (data.password === data.repeatPassword) {
-                try {
-                    const userData = {
-                        email: data.email,
-                        password: data.password
-                    }
-                    const totpKey = await instance.post('/register', userData)
-                    setQrCode(totpKey.data)
-                    setOpen2fa(true)
+                const resp : any = await dispatch(registerUser(data))
+                if (resp.type === "/register/rejected") {
+                    setNotification(resp.payload)
                 }
-                catch (e) {
-                    if (e instanceof AxiosError) {
-                        if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                            setNotification(e.response?.data['detail'])
-                        }
-                        else {
-                            setNotification(e.response?.data["Unknown error!"])
-                        }
-                    }
-                    return e
+                else {
+                    setQrCode(resp.payload)
+                    setOpen2fa(true)
                 }
             }
             else {
@@ -87,26 +63,12 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
     };
 
     const handleNext = async (data: any) => {
-        try {
-            const userData = {
-                email: data.email,
-                password: data.password,
-                secondFactor: data.secondFactorRegister
-            }
-            const user = await instance.post('/login/', userData)
-            dispatch(login(user.data))
-            navigate('/')
+        const resp = await dispatch(loginUser(data))
+        if (resp.type === "/login/rejected") {
+            setNotification(resp.payload)
         }
-        catch (e) {
-            if (e instanceof AxiosError) {
-                if (!!e.response && !!e.response.data && !!e.response?.data['detail']) { 
-                    setNotification(e.response?.data['detail'])
-                }
-                else {
-                    setNotification(e.response?.data["Unknown error!"])
-                }
-            }
-            return e
+        else {
+            navigate('/')
         }
     };
 
@@ -124,7 +86,7 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
     };
     
     return (
-        <div className='root'>
+        <div className="background" style={{ backgroundImage: `url(${URL})` }}>
             <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
                 <Box
                     display='flex'
@@ -136,7 +98,7 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                     padding={5}
                     borderRadius={5}
                     boxShadow={'5px 5px 10px #ccc'}
-                    sx={{ backgroundColor: "#f5f5f5"}}>
+                    >
                     {
                     (location.pathname === '/login' 
                         ? <LoginPage navigate={navigate} register={register} errors={errors}/> : location.pathname === '/register' 

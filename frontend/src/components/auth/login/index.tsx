@@ -1,9 +1,12 @@
 import React, { JSX } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 import { IPropsLogin } from '../../../common/types/auth';
+import AppLoadingButton from '../../loading-button';
+import { useAppDispatch, useAppSelector } from '../../../utils/hook';
 
 const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => {
   const {navigate, register, errors} = props
+  const loading = useAppSelector(state => state.auth.isLoading)
 
   return (
     <>
@@ -52,7 +55,7 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
           maxLength: 6
         })}
         />
-      <Button type="submit" sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Войти</Button>
+      <AppLoadingButton loading={loading} type="submit" sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Войти</AppLoadingButton>
       <Typography variant="body1" sx={{fontFamily:'Poppins'}}>Нет аккаунта?<span className='incitingText' onClick={() => navigate('/register')}>Регистрация</span></Typography>
     </>
   );
