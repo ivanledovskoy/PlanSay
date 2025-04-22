@@ -92,7 +92,7 @@ def get_current_token_payload(
     try:
         payload = decode_jwt(token=token)
     except InvalidTokenError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token error: {e}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный токен: {e}")
     return payload
 
 def get_current_auth_user(
@@ -101,7 +101,7 @@ def get_current_auth_user(
     email: EmailStr | None = payload.get("sub")
     if user := User.getUserByEmail(email):
         return user
-    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token invalid (User not found)")
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Некорректный токен")
 
 
 def get_current_active_auth_user(
@@ -109,7 +109,7 @@ def get_current_active_auth_user(
 ):
     if dbUser.active:
         return dbUser
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is not active")
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Сессия деактивирована")
 
 @router.get("/users/me")
 def auth_user_check_self_info(

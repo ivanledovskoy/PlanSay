@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
 from models.tasks import Task
+from models.users import User
 from routers.auth import get_current_auth_user
 from crud.tasks import _get_tasks_with_filter, _create_task, _create_description
 import logging
@@ -56,3 +57,43 @@ def post_task(task_data: TaskCreate, db: Session = Depends(get_db), user = Depen
 @router.put("/tasks/{id}", summary="Обновление задачи пользователя")
 def put_task_by_id():
     ...
+
+@router.post("/telegram/tasks", summary="Добавление задачи от Telegram бота")
+def create_task_from_telegram(
+    task_data: dict, 
+    db: Session = Depends(get_db)
+):
+    try:
+        email = task_data.get("email")
+        title = task_data.get("title")
+        
+        if not email or not title:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email и заголовок задачи обязательны"
+            )
+
+        user = User.getUserByEmail(email)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь с таким email не найден"
+            )
+
+        task_create = TaskCreate(
+            title=title,
+            description=None,
+            remember_data=None
+        )
+
+        new_task = _create_task(db, task_create, user.user_id)
+        
+        return {"status": "success", "task_id": new_task.id}
+
+    except Exception as e:
+        logger.error(f"Ошибка при создании задачи из Telegram: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка при создании задачи"
+        )
