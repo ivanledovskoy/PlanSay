@@ -18,8 +18,8 @@ function App() {
 
   return (
     <ColorModeContext.Provider value={colorMode}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
+       <ThemeProvider theme={theme}>
+         <CssBaseline />
         <LayoutComponent>
             <Routes>
               <Route element={<PrivateRoute />}>
@@ -32,7 +32,7 @@ function App() {
               <Route path="/register" element={<AuthRootComponent/>}/>
             </Routes>
         </LayoutComponent>
-      </ThemeProvider>
+       </ThemeProvider>
     </ColorModeContext.Provider>
   );
 }

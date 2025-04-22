@@ -108,11 +108,12 @@ const InboxComponent = () => {
   }, [])
 
   const renderInbox = (tasks: any) => {
-    return tasks.map((element: any) => 
+    return tasks.map((element: any, index: any) => 
         <ListItem key={element.id}>
             <ListItemButton 
             className={classes.navItem}
-            onClick={handleClickOpen}>
+            onClick = {() => handleClickOpen(element)}
+            >
                 <ListItemIcon>
                   <EditCalendar />
                 </ListItemIcon>
@@ -127,7 +128,8 @@ const InboxComponent = () => {
 const [open, setOpen] = React.useState(false);
 const [selectedValue, setSelectedValue] = React.useState(emails[1]);
 
-const handleClickOpen = () => {
+const handleClickOpen = (value: any) => {
+  console.log(value)
   setOpen(true);
 };
 
@@ -152,25 +154,6 @@ function DateTimePickerViewRenderers() {
             seconds: renderTimeViewClock,
           }}
           closeOnSelect={true}
-          slotProps={{
-            day: {
-              sx: () => ({
-                '&.MuiPickersDay-root.Mui-selected': {
-                backgroundColor: "#1900D5",
-                },
-                ':hover': {
-                  color: '#fff',
-                  backgroundColor: "#1900D5",
-                  borderColor: "#1900D5",
-                },
-                '& .MuiPaper-root': {
-                  color: '#fff',
-                  backgroundColor: "#1900D5",
-                  borderColor: "#1900D5",
-                },
-              }),
-            },
-          }}
         />
       </DemoContainer>
     </LocalizationProvider>
