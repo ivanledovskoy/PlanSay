@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=['Основной функционал'])
 
-
 @router.get("/tasks/assigned", summary="Получение всех задач пользователя, у которых назначена дата выполнения")
 def get_tasks_assigned(db: Session = Depends(get_db), user = Depends(get_current_auth_user)):
     return _get_tasks_with_filter(db, user.user_id, [Task.remember_data != None])
