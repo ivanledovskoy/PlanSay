@@ -11,10 +11,10 @@ class Task(Base):
     title = Column(String)
     create_data = Column(DateTime)
     remember_data = Column(DateTime)
-    user_id = Column(Integer, ForeignKey('users.user_id'))
+    user_id = Column(Integer, ForeignKey('users.user_id', ondelete='CASCADE'))
     
     user: Mapped['User'] = relationship("User", back_populates="tasks")
-    description: Mapped['Description'] = relationship("Description", back_populates="task")
+    description: Mapped['Description'] = relationship("Description", uselist=False, back_populates="task", cascade="all, delete-orphan")
 
     def __init__(self, title: str, create_data: datetime, remember_data: datetime,
                  user_id: int):

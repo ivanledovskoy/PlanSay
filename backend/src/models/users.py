@@ -13,7 +13,7 @@ class User(Base):
     password = Column(LargeBinary)
     totp_secret_key = Column(String)
     active = Column(Boolean, default=True)
-    tasks: Mapped[list['Task']] = relationship("Task", back_populates="user")
+    tasks: Mapped[list['Task']] = relationship("Task", back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, email: str, password: str):
         self.email = email

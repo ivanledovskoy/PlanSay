@@ -7,6 +7,11 @@ class TaskCreate(BaseModel):
     remember_data: datetime | None = None
     description: str | None =  None
 
+class TaskUpdate(BaseModel):
+    title: str | None = None
+    remember_data: datetime | None = None
+    description: str | None =  None
+
 class TaskResponse(BaseModel):
     id: int
     title: str
