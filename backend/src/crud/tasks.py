@@ -38,6 +38,7 @@ def _create_task(db: Session, task_data: TaskCreate, user_id: int):
         title=task_data.title,
         create_data=datetime.now(),
         remember_data=task_data.remember_data,
+        is_completed=task_data.is_completed,
         user_id=user_id,
     )
     db.add(new_task)
