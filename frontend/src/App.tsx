@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/home';
 import InboxComponent from './pages/inbox';
-import PrivateRoute from './utils/router/privateRoute';
+import PrivateRoute, { AdminRoute } from './utils/router/privateRoute';
 import AuthRootComponent from './components/auth';
 import "./App.css"
 import LayoutComponent from './components/layout';
@@ -12,6 +12,7 @@ import CalendarComponent from './pages/calendar';
 import { ColorModeContext, useMode } from './theme';
 import {CssBaseline, ThemeProvider} from '@mui/material'
 import LogoutComponent from './pages/logout';
+import AdminComponent from './pages/admin';
 
 const URL = "https://i.imgur.com/L95wKD3.png"
 
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/inbox" element={<InboxComponent/>}/>
                 <Route path="/account" element={<AccountComponent/>}/>
                 <Route path="/logout" element={<LogoutComponent/>}/>
+                <Route path="/admin" element={<AdminComponent/>}/>
               </Route>
               <Route path="/login" element={<AuthRootComponent/>}/>
               <Route path="/register" element={<AuthRootComponent/>}/>

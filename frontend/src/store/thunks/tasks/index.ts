@@ -20,6 +20,25 @@ export const getInbox = createAsyncThunk(
     }
 )
 
+export const getUsers = createAsyncThunk(
+    '/admin/users123',
+    async (jwt_token: any, {rejectWithValue}) => {
+        try {
+            const tasks = await instance.get('/admin/users', {headers: {'Authorization': `Bearer ${jwt_token}`}})
+            return tasks.data
+        } 
+        catch (e: any) {
+            sessionStorage.clear()
+            if (e.response && e.response.data && e.response?.data['detail']) { 
+                return rejectWithValue(e.response?.data['detail'])
+            }
+            else {
+                return rejectWithValue("Неизвестная ошибка!")
+            }
+        }
+    }
+)
+
 export const deactivateSessions = createAsyncThunk(
     '/deactivate-session',
     async (jwt_token: any, {rejectWithValue}) => {
