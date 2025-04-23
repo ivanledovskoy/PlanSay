@@ -20,29 +20,23 @@ load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
-# Файл для хранения пользователей
 USERS_FILE = "users.json"
 AUDIO_TEMP_DIR = "temp_audio"
 
-# Создаем директории если их нет
 os.makedirs(AUDIO_TEMP_DIR, exist_ok=True)
 
 bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher()
 stt = STT()
 
-
-# Состояния бота
 class Form(StatesGroup):
     waiting_for_token = State()
     waiting_for_voice = State()
     waiting_for_text = State()
 
-
-# Загружаем данные пользователей
 try:
     with open(USERS_FILE, "r") as f:
-        users: Dict[int, str] = json.load(f)  # Теперь храним user_id вместо email
+        users: Dict[int, str] = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     users = {}
 
@@ -52,11 +46,9 @@ logging.basicConfig(
     filename="bot.log",
 )
 
-
 def save_users():
     with open(USERS_FILE, "w") as f:
         json.dump(users, f)
-
 
 async def show_help(message: types.Message):
     help_text = (
@@ -67,7 +59,6 @@ async def show_help(message: types.Message):
         "/text_task - Записать задачу текстом"
     )
     await message.answer(help_text)
-
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
@@ -221,7 +212,7 @@ async def handle_other_messages(message: types.Message):
 async def send_task_to_backend(user_id: int, text: str, message: types.Message):
     backend_url = os.getenv("BACKEND_URL")
     task_data = {
-        "user_id": users[user_id],  # Теперь отправляем user_id вместо email
+        "user_id": users[user_id],
         "title": text
     }
 
