@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from crud.users import update_user_info_by_id
 from crud.sessions import _session_is_active, _delete_session_by_user_id, _session_create
-from schemas.users import UserUpdate
+from schemas.users import UserUpdate, UserCredential
 from schemas.sessions import SessionCreate
 import secrets
 
@@ -118,15 +118,13 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
         "session_id": session_id
     }
     token = encode_jwt(jwt_payload)
-    return TokenInfo(
-        access_token=token,
-        token_type="Bearer"
-    )
+    return {"token_info": TokenInfo(access_token=token, token_type="Bearer"),
+            "is_admin": dbUser.role != 'user'}
 
 
 @router.post("/password-change", summary="Смена пароля")
-def password_change(new_password: str, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
-    return update_user_info_by_id(user.user_id, UserUpdate(password=new_password), db)
+def password_change(new_creds: UserCredential, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
+    return update_user_info_by_id(user.user_id, UserUpdate(password=new_creds.password), db)
 
 
 @router.delete("/deactivate-session", summary="Деактивация сессий пользователя")
