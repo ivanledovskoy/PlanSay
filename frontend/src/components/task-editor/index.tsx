@@ -27,17 +27,22 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { IPropsTasks } from "../../common/types/tasks";
 import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "../../utils/hook";
-import { updateTask } from "../../store/thunks/tasks";
+import { useAppDispatch, useAppSelector } from "../../utils/hook";
+import { getTasks, updateTask } from "../../store/thunks/tasks";
 import { instance } from "../../utils/axios";
+import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
 
-export const TaskEditorDialogNew = (props: IPropsTasks) => {
-    const { onClose_props, open_props, selectedElement_props, setSelectedElement_props } = props;
+export const TaskEditorDialogNew = (props: any) => {
+    const { onClose_props, open_props, selectedElement_props, taskTitle: taskTitle_props, taskDescription: taskDescription_props} = props;
+
+    const [taskTitle, setTaskTitle] = useState(taskTitle_props);
+    const [taskDescription, setTaskDescription] = useState(taskDescription_props);
     let newDate = ''
+
+    const dispatch = useAppDispatch()
     
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
-      console.log(newDate)
     }
     
     function DateTimePickerViewRenderers() {
@@ -59,37 +64,36 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
       );
     }
 
-    
-    const taskTitle = selectedElement_props ? selectedElement_props.title : ''
-    const taskDescription = selectedElement_props ? selectedElement_props.description.value : ''
+    const all_tasks = useAppSelector(state => state.tasks.all_tasks)
 
-    const {
-        register,
-        formState: {
-            errors
-        }, handleSubmit
-    } = useForm()
-
-    const handleSubmitForm = async (data: any) => {
+    const handleSubmitForm = async (e: any) => {
+      e.preventDefault()
       try {
-          if (newDate) {
-            data["remember_data"] = newDate
-          }
+            const data = {
+              "title": taskTitle ? taskTitle : taskTitle_props,
+              "description": taskDescription ? taskDescription : taskDescription_props
+            }
+            if (newDate) {
+              Object.assign(data, {"remember_data": newDate})
+            }
+
+          console.log(data)
           const tasks = await instance.put( `/tasks/${selectedElement_props.id}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          dispatch(getTasks(sessionStorage.getItem('token')))
       } catch (error) {
         console.log(error)
       }
       onClose_props()
     }
-    
+
     return (
-         <React.Fragment>
          <Dialog
          fullWidth={true}
          open={open_props}
          onClose={onClose_props}
+         key={selectedElement_props?.id || 'new'} 
          >
-      <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
+      <form className='form' onSubmit={handleSubmitForm}>
       <Box
           display='flex'
           justifyContent='center'
@@ -102,26 +106,23 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
       <>
               <TextField
                 placeholder='Название задачи' 
-                defaultValue={taskTitle} 
                 type='text'
                 variant="standard"
+                defaultValue={taskTitle_props}
+                onChange={(e) => setTaskTitle(e.target.value)}
                 slotProps={{
                     input: {
                         disableUnderline: true,
                     },
                 }}
-                error={!!errors.title}
-                helperText={errors.title ? `${errors.title.message}` : ''}
-                {...register('title', {
-                  required: 'Это обязательное поле'
-                })}
                 sx = {{marginBottom: 3}}
                 />
 
                 <TextField
                 placeholder='Описание задачи' 
                 multiline={true}
-                defaultValue={taskDescription} 
+                defaultValue={taskDescription_props}
+                onChange={(e) => setTaskDescription(e.target.value)}
                 type='text'
                 variant="standard"
                 slotProps={{
@@ -129,7 +130,6 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
                         disableUnderline: true,
                     },
                 }}
-                {...register('description', {})}
                 sx = {{marginBottom: 5}}
                 />
             <DateTimePickerViewRenderers />
@@ -139,56 +139,8 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
       </Box>
   </form>
        </Dialog>
-   </React.Fragment>
     )
 
-    // return (
-    // <React.Fragment>
-    //     <Dialog
-    //     fullWidth={false}
-    //     open={open_props}
-    //     onClose={onClose_props}
-    //     >
-    //     <DialogTitle>
-            // <InputBase
-            // defaultValue={taskTitle}
-            // placeholder="Название"
-            // required={true}
-            // inputProps={{ 'aria-label': 'naked' }}
-            // onChange={changeTitle}
-            // sx={{
-            //     fontWeight: "bolder",
-            // }}
-            // />
-    //     </DialogTitle>
-    //     <DialogContent>
-            // <InputBase
-            // defaultValue={taskDescription}
-            // placeholder="Описание"
-            // inputProps={{ 'aria-label': 'naked' }}
-            // multiline={true}
-            // onChange={changeDescription}
-            // />
-            // <Box
-            // noValidate
-            // component="form"
-            // sx={{
-            //     display: 'flex',
-            //     flexDirection: 'column',
-            //     m: 'auto',
-            //     width: 'fit-content',
-            //     padding: '50px 0px 0px 0px'
-            // }}
-            // >
-            // <DateTimePickerViewRenderers />
-            // </Box>
-    //     </DialogContent>
-    //     <DialogActions>
-    //         <Button type="submit" sx={{color: 'white'}}>Закрыть</Button>
-    //     </DialogActions>
-    //     </Dialog>
-    // </React.Fragment>
-    // );
 };
 
 export default TaskEditorDialogNew;

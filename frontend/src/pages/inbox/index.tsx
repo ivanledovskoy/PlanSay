@@ -47,8 +47,6 @@ const handleClickOpen = (element: any) => {
 const handleClose = () => {
   setOpen(false);
 };
-
-console.log(selectedElement)
   
   return (
     <div>
@@ -61,7 +59,8 @@ console.log(selectedElement)
         open_props={open}
         onClose_props={handleClose}
         selectedElement_props={selectedElement}
-        setSelectedElement_props={setSelectedElement}
+        taskTitle={selectedElement?.title || ''}
+        taskDescription={selectedElement?.description?.value || ''}
       />
     </div>
   )
