@@ -20,8 +20,8 @@ export const getInbox = createAsyncThunk(
     }
 )
 
-export const getUsers = createAsyncThunk(
-    '/admin/users123',
+export const getUsersList = createAsyncThunk(
+    '/get/tasks',
     async (jwt_token: any, {rejectWithValue}) => {
         try {
             const tasks = await instance.get('/admin/users', {headers: {'Authorization': `Bearer ${jwt_token}`}})
