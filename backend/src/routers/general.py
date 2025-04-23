@@ -64,20 +64,22 @@ def create_task_from_telegram(
     db: Session = Depends(get_db)
 ):
     try:
-        email = task_data.get("email")
+        user_id = task_data.get("user_id")
+        print(user_id)
         title = task_data.get("title")
+        print(title)
         
-        if not email or not title:
+        if not user_id or not title:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email и заголовок задачи обязательны"
+                detail="User_id и заголовок задачи обязательны"
             )
 
-        user = User.getUserByEmail(email)
+        user = User.getUserByUser_id(user_id)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Пользователь с таким email не найден"
+                detail="Пользователь с таким user_id не найден"
             )
 
         task_create = TaskCreate(
@@ -86,7 +88,7 @@ def create_task_from_telegram(
             remember_data=None
         )
 
-        new_task = _create_task(db, task_create, user.user_id)
+        new_task = _create_task(db, task_create, user_id)
         
         return {"status": "success", "task_id": new_task.id}
 

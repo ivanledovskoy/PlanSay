@@ -39,6 +39,10 @@ class User(Base):
     def getUserByEmail(email: str):
         db_user = db.query(User).filter(User.email == email).first()
         return db_user
+
+    def getUserByUser_id(user_id: int):
+        db_user = db.query(User).filter(User.user_id == user_id).first()
+        return db_user
     
     def verifyPassword(self, password: str):
         return bcrypt.checkpw(password=password.encode(), hashed_password=self.password)
