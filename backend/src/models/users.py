@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, Boolean, Integer, LargeBinary
 from sqlalchemy.orm import relationship, Mapped
 from database import Base, db
+from auth.utils import hash_password
 import bcrypt
 import secrets
 import base64
@@ -15,16 +16,14 @@ class User(Base):
     active = Column(Boolean, default=True)
     role = Column(String)
     tasks: Mapped[list['Task']] = relationship("Task", back_populates="user", cascade="all, delete-orphan")
+    sessions: Mapped[list['UserSession']] = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, email: str, password: str, role: str = "user"):
         self.email = email
         self.role = role
         secret_key = self._generate_secret_key()
         self.totp_secret_key = secret_key
-
-        salt = bcrypt.gensalt()
-        pwd_bytes = password.encode()
-        self.password = bcrypt.hashpw(pwd_bytes, salt)
+        self.password = hash_password(password)
 
     def getSecretKey(self):
         return self.totp_secret_key

@@ -3,13 +3,17 @@ from fastapi import Depends, HTTPException, status, APIRouter
 from auth.totp import TwoFactorAuth
 from auth.utils import encode_jwt, decode_jwt
 from models.users import User
+from models.sessions import UserSession
 from pydantic import BaseModel, EmailStr, Field
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 from database import get_db
 from crud.users import update_user_info_by_id
+from crud.sessions import _session_is_active, _delete_session_by_user_id, _session_create
 from schemas.users import UserUpdate
+from schemas.sessions import SessionCreate
+import secrets
 
 
 class TokenInfo(BaseModel):
@@ -51,8 +55,13 @@ def get_current_token_payload(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token error: {e}")
     return payload
 
+def check_active_session(payload: dict = Depends(get_current_token_payload), db: Session = Depends(get_db)):
+    if _session_is_active(db, payload.get("session_id")):
+        return payload
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Сессия не активна")
+
 def get_current_auth_user(
-        payload: dict = Depends(get_current_token_payload),
+        payload: dict = Depends(check_active_session),
 ) -> UserLoginSchema:
     email: EmailStr | None = payload.get("sub")
     if user := User.getUserByEmail(email):
@@ -80,7 +89,7 @@ def generate_qr(two_factor_auth: TwoFactorAuth = Depends(reg_user)):
 
 
 @router.post("/login", summary="Вход под УЗ пользователя")
-def login_user(creds: UserLoginSchema):
+def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     dbUser = User.getUserByEmail(creds.email)
     if dbUser is None or not dbUser.verifyPassword(creds.password):
         raise HTTPException(
@@ -101,9 +110,12 @@ def login_user(creds: UserLoginSchema):
     if is_valid:
         raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
     
+    session_id = secrets.token_hex()
+    _session_create(db, SessionCreate(user_id=dbUser.user_id, session_id=session_id))
     jwt_payload = {
         "sub": dbUser.email,
-        "user_id": dbUser.user_id
+        "user_id": dbUser.user_id,
+        "session_id": session_id
     }
     token = encode_jwt(jwt_payload)
     return TokenInfo(
@@ -115,6 +127,11 @@ def login_user(creds: UserLoginSchema):
 @router.post("/password-change", summary="Смена пароля")
 def password_change(new_password: str, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     return update_user_info_by_id(user.user_id, UserUpdate(password=new_password), db)
+
+
+@router.delete("/deactivate-session", summary="Деактивация сессий пользователя")
+def deactivate_session(db: Session = Depends(get_db), payload: dict = Depends(check_active_session)):
+    return _delete_session_by_user_id(db, payload.get("user_id"), payload.get("session_id"))
 
 
 @router.get("/users/me")

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from utils import handle_db_exception
 from schemas.users import UserUpdate
 from models.users import User
-import bcrypt
+from auth.utils import hash_password
 
 
 def get_all_users_info(db: Session):
@@ -21,9 +21,7 @@ def update_user_info_by_id(id: int, update_user_data: UserUpdate, db: Session):
         user = get_user_by_id(id, db)
         for attr, value in update_user_data.model_dump(exclude_unset=True).items():
             if attr == "password":
-                salt = bcrypt.gensalt()
-                pwd_bytes = value.encode()
-                value = bcrypt.hashpw(pwd_bytes, salt)
+                value = hash_password(value)
             setattr(user, attr, value)
         db.commit()
         return status.HTTP_200_OK
