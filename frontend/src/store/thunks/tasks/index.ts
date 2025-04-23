@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { instance } from "../../../utils/axios";
 
-export const getTasks = createAsyncThunk(
+export const getInbox = createAsyncThunk(
     '/get/tasks',
     async (jwt_token: any, {rejectWithValue}) => {
         try {
@@ -19,14 +19,30 @@ export const getTasks = createAsyncThunk(
     }
 )
 
-export const updateTask = createAsyncThunk(
-    '/tasks',
-    async (data: any, {rejectWithValue}) => {
+export const getCalendar = createAsyncThunk(
+    '/get/tasks',
+    async (jwt_token: any, {rejectWithValue}) => {
         try {
-            console.log(data)
-            //const tasks = await instance.put( `/tasks/${123}`, {headers: {'Authorization': `Bearer ${jwt_token}`}})
-            //return tasks.data
-            return true
+            const tasks = await instance.get('/tasks/assigned', {headers: {'Authorization': `Bearer ${jwt_token}`}})
+            return tasks.data
+        } 
+        catch (e: any) {
+            if (e.response && e.response.data && e.response?.data['detail']) { 
+                return rejectWithValue(e.response?.data['detail'])
+            }
+            else {
+                return rejectWithValue("Неизвестная ошибка!")
+            }
+        }
+    }
+)
+
+export const getToday = createAsyncThunk(
+    '/get/tasks',
+    async (jwt_token: any, {rejectWithValue}) => {
+        try {
+            const tasks = await instance.get('/tasks/today', {headers: {'Authorization': `Bearer ${jwt_token}`}})
+            return tasks.data
         } 
         catch (e: any) {
             if (e.response && e.response.data && e.response?.data['detail']) { 

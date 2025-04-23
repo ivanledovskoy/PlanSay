@@ -1,8 +1,7 @@
 export interface IPropsTasks {
     onClose_props: any
     open_props: any
-    selectedElement_props: ISelectedElement
-    setSelectedElement_props: any
+    selectedElement_props: any
 }
 
 export interface ISelectedElement {

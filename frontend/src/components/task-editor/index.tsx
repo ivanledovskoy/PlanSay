@@ -7,12 +7,16 @@ import {
     DialogContent, 
     DialogTitle, 
     Drawer, 
+    Grid, 
+    IconButton, 
+    InputAdornment, 
     InputBase, 
     List, 
     ListItem, 
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Stack,
     TextField,
     Typography,
     useTheme
@@ -27,18 +31,28 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { IPropsTasks } from "../../common/types/tasks";
 import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
-import { useAppDispatch } from "../../utils/hook";
-import { updateTask } from "../../store/thunks/tasks";
+import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { instance } from "../../utils/axios";
+import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
+import { Delete, Search } from "@mui/icons-material";
 
-export const TaskEditorDialogNew = (props: IPropsTasks) => {
-    const { onClose_props, open_props, selectedElement_props, setSelectedElement_props } = props;
+export const TaskEditorDialogNew = (props: any) => {
+    const { open, onClose, taskTitle, taskDescription, taskId} = props;
+
     let newDate = ''
+
+    const dispatch = useAppDispatch()
     
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
-      console.log(newDate)
     }
+
+    const {
+      register,
+      formState: {
+          errors
+      }, handleSubmit
+  } = useForm()
     
     function DateTimePickerViewRenderers() {
       return (
@@ -59,35 +73,40 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
       );
     }
 
-    
-    const taskTitle = selectedElement_props ? selectedElement_props.title : ''
-    const taskDescription = selectedElement_props ? selectedElement_props.description.value : ''
-
-    const {
-        register,
-        formState: {
-            errors
-        }, handleSubmit
-    } = useForm()
-
-    const handleSubmitForm = async (data: any) => {
+    const removeTask = async () => {
       try {
-          if (newDate) {
-            data["remember_data"] = newDate
-          }
-          const tasks = await instance.put( `/tasks/${selectedElement_props.id}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        if (taskId) {
+          await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
       } catch (error) {
         console.log(error)
       }
-      onClose_props()
+      onClose()
     }
-    
+
+    const handleSubmitForm = async (data: any) => {
+      try {
+        if (newDate) {
+          data["remember_data"] = newDate
+        }
+
+        if (taskId) {
+          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+        else {
+          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      onClose()
+    }
+
     return (
-         <React.Fragment>
          <Dialog
          fullWidth={true}
-         open={open_props}
-         onClose={onClose_props}
+         open={open}
+         onClose={onClose}
          >
       <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
       <Box
@@ -100,95 +119,55 @@ export const TaskEditorDialogNew = (props: IPropsTasks) => {
           padding={5} 
           >
       <>
-              <TextField
-                placeholder='Название задачи' 
-                defaultValue={taskTitle} 
-                type='text'
-                variant="standard"
-                slotProps={{
-                    input: {
-                        disableUnderline: true,
-                    },
-                }}
-                error={!!errors.title}
-                helperText={errors.title ? `${errors.title.message}` : ''}
-                {...register('title', {
-                  required: 'Это обязательное поле'
-                })}
-                sx = {{marginBottom: 3}}
-                />
 
-                <TextField
-                placeholder='Описание задачи' 
-                multiline={true}
-                defaultValue={taskDescription} 
-                type='text'
-                variant="standard"
-                slotProps={{
-                    input: {
-                        disableUnderline: true,
-                    },
-                }}
-                {...register('description', {})}
-                sx = {{marginBottom: 5}}
-                />
-            <DateTimePickerViewRenderers />
+        <TextField
+          placeholder='Название задачи' 
+          defaultValue={taskTitle}
+          type='text'
+          variant="standard"
+          slotProps={{
+              input: {
+                  disableUnderline: true,
+              },
+          }}
+          error={!!errors.title}
+          helperText={errors.title ? `${errors.title.message}` : ''}
+          {...register('title', {
+            required: 'Это обязательное поле'
+          })}
+          sx = {{marginBottom: 3}}
+        />
+
+        <TextField
+        placeholder='Описание задачи' 
+        defaultValue={taskDescription}
+        type='text'
+        multiline={true}
+        variant="standard"
+        slotProps={{
+            input: {
+                disableUnderline: true,
+            },
+        }}
+        error={!!errors.description}
+        helperText={errors.description ? `${errors.description.message}` : ''}
+        {...register('description')}
+        sx = {{marginBottom: 3}}
+        />
+      <DateTimePickerViewRenderers />
       
       <AppLoadingButton loading={false} type="submit" sx={{ margin: 'auto', marginTop: 5, width: '60%'}} variant="contained">Сохранить</AppLoadingButton>
+      <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
+        <IconButton onClick={removeTask} aria-label="delete">
+          <Delete color="error"/>
+        </IconButton>
+      </Stack>
     </>
       </Box>
   </form>
        </Dialog>
-   </React.Fragment>
     )
 
-    // return (
-    // <React.Fragment>
-    //     <Dialog
-    //     fullWidth={false}
-    //     open={open_props}
-    //     onClose={onClose_props}
-    //     >
-    //     <DialogTitle>
-            // <InputBase
-            // defaultValue={taskTitle}
-            // placeholder="Название"
-            // required={true}
-            // inputProps={{ 'aria-label': 'naked' }}
-            // onChange={changeTitle}
-            // sx={{
-            //     fontWeight: "bolder",
-            // }}
-            // />
-    //     </DialogTitle>
-    //     <DialogContent>
-            // <InputBase
-            // defaultValue={taskDescription}
-            // placeholder="Описание"
-            // inputProps={{ 'aria-label': 'naked' }}
-            // multiline={true}
-            // onChange={changeDescription}
-            // />
-            // <Box
-            // noValidate
-            // component="form"
-            // sx={{
-            //     display: 'flex',
-            //     flexDirection: 'column',
-            //     m: 'auto',
-            //     width: 'fit-content',
-            //     padding: '50px 0px 0px 0px'
-            // }}
-            // >
-            // <DateTimePickerViewRenderers />
-            // </Box>
-    //     </DialogContent>
-    //     <DialogActions>
-    //         <Button type="submit" sx={{color: 'white'}}>Закрыть</Button>
-    //     </DialogActions>
-    //     </Dialog>
-    // </React.Fragment>
-    // );
 };
 
 export default TaskEditorDialogNew;
