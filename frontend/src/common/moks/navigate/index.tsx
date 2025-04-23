@@ -14,7 +14,7 @@ export const navMenu = [
         id: 2,
     },
     {
-        name: 'Календарь',
+        name: 'Планы',
         icon: <CalendarMonth />,
         path: '/calendar',
         id: 3
