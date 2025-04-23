@@ -7,9 +7,11 @@ import AuthRootComponent from './components/auth';
 import "./App.css"
 import LayoutComponent from './components/layout';
 import TodayComponent from './pages/today';
+import AccountComponent from './pages/account';
 import CalendarComponent from './pages/calendar';
 import { ColorModeContext, useMode } from './theme';
 import {CssBaseline, ThemeProvider} from '@mui/material'
+import LogoutComponent from './pages/logout';
 
 const URL = "https://i.imgur.com/L95wKD3.png"
 
@@ -23,10 +25,11 @@ function App() {
         <LayoutComponent>
             <Routes>
               <Route element={<PrivateRoute />}>
-                <Route path="/" element={<Home/>}/>
                 <Route path="/today" element={<TodayComponent/>}/>
                 <Route path="/calendar" element={<CalendarComponent/>}/>
                 <Route path="/inbox" element={<InboxComponent/>}/>
+                <Route path="/account" element={<AccountComponent/>}/>
+                <Route path="/logout" element={<LogoutComponent/>}/>
               </Route>
               <Route path="/login" element={<AuthRootComponent/>}/>
               <Route path="/register" element={<AuthRootComponent/>}/>

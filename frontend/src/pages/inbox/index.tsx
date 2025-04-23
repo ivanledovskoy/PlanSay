@@ -38,6 +38,7 @@ const InboxComponent = () => {
         await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
       }
     } catch (error) {
+      sessionStorage.clear()
       console.log(error)
     }
     dispatch(getInbox(sessionStorage.getItem('token')))
