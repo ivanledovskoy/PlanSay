@@ -1,4 +1,4 @@
-import {CalendarMonth, AlarmOn, Inbox, Logout} from '@mui/icons-material';
+import {CalendarMonth, AlarmOn, Inbox, Logout, AccountBox} from '@mui/icons-material';
 
 export const navMenu = [
     {
@@ -22,6 +22,12 @@ export const navMenu = [
 ]
 
 export const accountMenu = [
+    {
+        name: 'Аккаунт',
+        icon: <AccountBox />,
+        path: '/account',
+        id: 2,
+    },
     {
         name: 'Выйти',
         icon: <Logout />,

@@ -39,6 +39,7 @@ const CalendarComponent = () => {
         await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
       }
     } catch (error) {
+      sessionStorage.clear()
       console.log(error)
     }
     dispatch(getCalendar(sessionStorage.getItem('token')))
@@ -51,6 +52,7 @@ const CalendarComponent = () => {
           await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
         }
       } catch (error) {
+        sessionStorage.clear()
         console.log(error)
       }
     }
