@@ -32,7 +32,6 @@ import { IPropsTasks } from "../../common/types/tasks";
 import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../utils/hook";
-import { getTasks, updateTask } from "../../store/thunks/tasks";
 import { instance } from "../../utils/axios";
 import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
 import { Delete, Search } from "@mui/icons-material";
@@ -78,7 +77,6 @@ export const TaskEditorDialogNew = (props: any) => {
       try {
         if (taskId) {
           await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
-          dispatch(getTasks(sessionStorage.getItem('token')))
         }
       } catch (error) {
         console.log(error)
@@ -98,8 +96,6 @@ export const TaskEditorDialogNew = (props: any) => {
         else {
           await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
         }
-      
-        dispatch(getTasks(sessionStorage.getItem('token')))
       } catch (error) {
         console.log(error)
       }
