@@ -12,6 +12,7 @@ from aiogram.fsm.state import State, StatesGroup
 from dotenv import load_dotenv
 import asyncio
 import httpx
+import jwt
 
 from stt import STT
 
@@ -30,16 +31,18 @@ bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher()
 stt = STT()
 
+
 # Состояния бота
 class Form(StatesGroup):
+    waiting_for_token = State()
     waiting_for_voice = State()
     waiting_for_text = State()
-    waiting_for_email = State()
+
 
 # Загружаем данные пользователей
 try:
     with open(USERS_FILE, "r") as f:
-        users: Dict[int, str] = json.load(f)
+        users: Dict[int, str] = json.load(f)  # Теперь храним user_id вместо email
 except (FileNotFoundError, json.JSONDecodeError):
     users = {}
 
@@ -49,9 +52,11 @@ logging.basicConfig(
     filename="bot.log",
 )
 
+
 def save_users():
     with open(USERS_FILE, "w") as f:
         json.dump(users, f)
+
 
 async def show_help(message: types.Message):
     help_text = (
@@ -63,46 +68,71 @@ async def show_help(message: types.Message):
     )
     await message.answer(help_text)
 
+
 @dp.message(CommandStart())
 async def cmd_start(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     if user_id in users:
         await message.reply(
-            f"С возвращением! Ваш email: {users[user_id]}\n"
+            f"С возвращением! Ваш user_id: {users[user_id]}\n"
             "Используйте /help для вывода списка команд."
         )
     else:
-        await state.set_state(Form.waiting_for_email)
+        await state.set_state(Form.waiting_for_token)
         await message.reply(
             "Привет! Это PlanSay бот.\n"
-            "Пожалуйста, введите ваш email."
+            "Пожалуйста, введите ваш JWT токен."
         )
+
+def read_key():
+    try:
+        with open("jwt-public.pem", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        logger.error(f"JWT public file not found: {"jwt-public.pem"}")
+        raise
+    except Exception as e:
+        logger.error(f"Error reading JWT public: {e}")
+        raise
+
+@dp.message(Form.waiting_for_token)
+async def process_token(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    token = message.text.strip()
+    try:
+        key = read_key()
+        payload = jwt.decode(token, key, algorithms=["RS256"])
+        backend_user_id = payload.get("user_id")
+
+        if not backend_user_id:
+            raise ValueError("User ID not found in token")
+
+        users[user_id] = str(backend_user_id)
+        save_users()
+        await state.clear()
+
+        await message.reply(
+            f"Авторизация успешна! Ваш user_id: {backend_user_id}\n"
+            "Используйте /help для списка команд."
+        )
+    except jwt.ExpiredSignatureError:
+        await message.reply("Срок действия токена истек. Пожалуйста, получите новый токен.")
+    except jwt.InvalidTokenError:
+        await message.reply("Неверный токен. Пожалуйста, проверьте и попробуйте снова.")
+    except Exception as e:
+        logger.error(f"Ошибка обработки токена: {e}")
+        await message.reply("Произошла ошибка при обработке токена. Пожалуйста, попробуйте снова.")
+
 
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
     await show_help(message)
 
-@dp.message(Form.waiting_for_email)
-async def process_email(message: Message, state: FSMContext):
-    user_id = message.from_user.id
-    email = message.text.strip()
-
-    if "@" not in email or "." not in email:
-        await message.reply("Пожалуйста, введите корректный email.")
-        return
-
-    users[user_id] = email
-    save_users()
-    await state.clear()
-
-    await message.reply(
-        f"Спасибо! Ваш email {email} сохранен.\n"
-        "Используйте /help для списка команд."
-    )
 
 @dp.message(Command("test"))
 async def cmd_test(message: types.Message):
     await message.answer("Test")
+
 
 @dp.message(Command("voice_task"))
 async def cmd_voice_task(message: types.Message, state: FSMContext):
@@ -115,6 +145,7 @@ async def cmd_voice_task(message: types.Message, state: FSMContext):
     await state.set_state(Form.waiting_for_voice)
     await message.answer("Пожалуйста, отправьте голосовое сообщение для задачи.")
 
+
 @dp.message(Command("text_task"))
 async def cmd_text_task(message: types.Message, state: FSMContext):
     user_id = message.from_user.id
@@ -125,6 +156,7 @@ async def cmd_text_task(message: types.Message, state: FSMContext):
 
     await state.set_state(Form.waiting_for_text)
     await message.answer("Пожалуйста, отправьте текст задачи.")
+
 
 @dp.message(Form.waiting_for_text)
 async def process_text_task(message: types.Message, state: FSMContext):
@@ -137,6 +169,7 @@ async def process_text_task(message: types.Message, state: FSMContext):
 
     await send_task_to_backend(user_id, text, message)
     await state.clear()
+
 
 @dp.message(Form.waiting_for_voice)
 async def process_voice_task(message: types.Message, state: FSMContext):
@@ -179,14 +212,16 @@ async def process_voice_task(message: types.Message, state: FSMContext):
             os.remove(file_on_disk)
     await state.clear()
 
+
 @dp.message()
 async def handle_other_messages(message: types.Message):
     await show_help(message)
 
+
 async def send_task_to_backend(user_id: int, text: str, message: types.Message):
     backend_url = os.getenv("BACKEND_URL")
     task_data = {
-        "email": users[user_id],
+        "user_id": users[user_id],  # Теперь отправляем user_id вместо email
         "title": text
     }
 
@@ -207,8 +242,10 @@ async def send_task_to_backend(user_id: int, text: str, message: types.Message):
         logger.error(f"Ошибка соединения с бэкендом: {e}")
         await message.answer("⚠️ Не удалось соединиться с сервером.")
 
+
 async def main():
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     print("Запуск бота")
