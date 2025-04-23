@@ -1,12 +1,13 @@
 import { Checkbox, FormGroup, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../utils/hook";
-import { getInbox, getToday, getUsers } from "../../store/thunks/tasks";
+import { getInbox, getToday, getUsersList } from "../../store/thunks/tasks";
 import { useStyles } from "./styles";
-import {Delete, EditCalendar} from '@mui/icons-material';
+import {AccountBox, Delete, EditCalendar} from '@mui/icons-material';
 import TopBarComponent from "../../components/top-bar";
 import TaskEditorDialogNew from "../../components/task-editor";
 import { instance } from "../../utils/axios";
+import UserEditor from "../../components/user-editor";
 
 const AdminComponent = () => {
   const [filter, setFilter] = useState('')
@@ -19,7 +20,7 @@ const AdminComponent = () => {
   // }, [])
 
   useEffect(() => {
-    dispatch(getUsers(sessionStorage.getItem('token')))
+    dispatch(getUsersList(sessionStorage.getItem('token')))
   }, [])
 
   const all_tasks = useAppSelector(state => state.tasks.all_tasks)
@@ -54,22 +55,21 @@ const AdminComponent = () => {
         <ListItem key={element.id}>
             <ListItemButton 
             className={classes.navItem}
-            onClick={() => handleOpen(element.id)}>
+            onClick={() => handleOpen(index)}>
                 <ListItemIcon>
-                  <EditCalendar />
+                  <AccountBox />
                 </ListItemIcon>
-                {/* <ListItemText>
-                    <Typography variant={"h2"}>{element.title}</Typography>
-                </ListItemText> */}
+                <ListItemText>
+                    <Typography variant={"h2"}>{element.email} {element.role != 'user' ? '(Админ)' : null }</Typography>
+                </ListItemText>
             </ListItemButton>
             <Checkbox onClick={() => removeTask(element.id)} icon={<Delete color="error"/>} checkedIcon={<Delete color="error"/>}/>
-            {/* <TaskEditorDialogNew
-              open={openDialogs[element.id] || false}
-              onClose={() => handleClose(element.id)}
-              taskTitle={element.title}
-              taskDescription={element.description.value}
-              taskId={element.id}
-            /> */}
+            <UserEditor
+              open={openDialogs[index] || false}
+              onClose={() => handleClose(index)}
+              email={element.email}
+              role={element.role}
+            />
         </ListItem>
     )
   }
