@@ -7,12 +7,16 @@ import {
     DialogContent, 
     DialogTitle, 
     Drawer, 
+    Grid, 
+    IconButton, 
+    InputAdornment, 
     InputBase, 
     List, 
     ListItem, 
     ListItemButton,
     ListItemIcon,
     ListItemText,
+    Stack,
     TextField,
     Typography,
     useTheme
@@ -31,12 +35,11 @@ import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { getTasks, updateTask } from "../../store/thunks/tasks";
 import { instance } from "../../utils/axios";
 import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
+import { Delete, Search } from "@mui/icons-material";
 
 export const TaskEditorDialogNew = (props: any) => {
-    const { onClose_props, open_props, selectedElement_props, taskTitle: taskTitle_props, taskDescription: taskDescription_props} = props;
+    const { open, onClose, taskTitle, taskDescription, taskId} = props;
 
-    const [taskTitle, setTaskTitle] = useState(taskTitle_props);
-    const [taskDescription, setTaskDescription] = useState(taskDescription_props);
     let newDate = ''
 
     const dispatch = useAppDispatch()
@@ -44,6 +47,13 @@ export const TaskEditorDialogNew = (props: any) => {
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
     }
+
+    const {
+      register,
+      formState: {
+          errors
+      }, handleSubmit
+  } = useForm()
     
     function DateTimePickerViewRenderers() {
       return (
@@ -64,36 +74,45 @@ export const TaskEditorDialogNew = (props: any) => {
       );
     }
 
-    const all_tasks = useAppSelector(state => state.tasks.all_tasks)
-
-    const handleSubmitForm = async (e: any) => {
-      e.preventDefault()
+    const removeTask = async () => {
       try {
-            const data = {
-              "title": taskTitle ? taskTitle : taskTitle_props,
-              "description": taskDescription ? taskDescription : taskDescription_props
-            }
-            if (newDate) {
-              Object.assign(data, {"remember_data": newDate})
-            }
-
-          console.log(data)
-          const tasks = await instance.put( `/tasks/${selectedElement_props.id}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        if (taskId) {
+          await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
           dispatch(getTasks(sessionStorage.getItem('token')))
+        }
       } catch (error) {
         console.log(error)
       }
-      onClose_props()
+      onClose()
+    }
+
+    const handleSubmitForm = async (data: any) => {
+      try {
+        if (newDate) {
+          data["remember_data"] = newDate
+        }
+
+        if (taskId) {
+          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+        else {
+          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+      
+        dispatch(getTasks(sessionStorage.getItem('token')))
+      } catch (error) {
+        console.log(error)
+      }
+      onClose()
     }
 
     return (
          <Dialog
          fullWidth={true}
-         open={open_props}
-         onClose={onClose_props}
-         key={selectedElement_props?.id || 'new'} 
+         open={open}
+         onClose={onClose}
          >
-      <form className='form' onSubmit={handleSubmitForm}>
+      <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
       <Box
           display='flex'
           justifyContent='center'
@@ -104,37 +123,49 @@ export const TaskEditorDialogNew = (props: any) => {
           padding={5} 
           >
       <>
-              <TextField
-                placeholder='Название задачи' 
-                type='text'
-                variant="standard"
-                defaultValue={taskTitle_props}
-                onChange={(e) => setTaskTitle(e.target.value)}
-                slotProps={{
-                    input: {
-                        disableUnderline: true,
-                    },
-                }}
-                sx = {{marginBottom: 3}}
-                />
 
-                <TextField
-                placeholder='Описание задачи' 
-                multiline={true}
-                defaultValue={taskDescription_props}
-                onChange={(e) => setTaskDescription(e.target.value)}
-                type='text'
-                variant="standard"
-                slotProps={{
-                    input: {
-                        disableUnderline: true,
-                    },
-                }}
-                sx = {{marginBottom: 5}}
-                />
-            <DateTimePickerViewRenderers />
+        <TextField
+          placeholder='Название задачи' 
+          defaultValue={taskTitle}
+          type='text'
+          variant="standard"
+          slotProps={{
+              input: {
+                  disableUnderline: true,
+              },
+          }}
+          error={!!errors.title}
+          helperText={errors.title ? `${errors.title.message}` : ''}
+          {...register('title', {
+            required: 'Это обязательное поле'
+          })}
+          sx = {{marginBottom: 3}}
+        />
+
+        <TextField
+        placeholder='Описание задачи' 
+        defaultValue={taskDescription}
+        type='text'
+        multiline={true}
+        variant="standard"
+        slotProps={{
+            input: {
+                disableUnderline: true,
+            },
+        }}
+        error={!!errors.description}
+        helperText={errors.description ? `${errors.description.message}` : ''}
+        {...register('description')}
+        sx = {{marginBottom: 3}}
+        />
+      <DateTimePickerViewRenderers />
       
       <AppLoadingButton loading={false} type="submit" sx={{ margin: 'auto', marginTop: 5, width: '60%'}} variant="contained">Сохранить</AppLoadingButton>
+      <Stack direction="row" spacing={1} justifyContent={'flex-end'}>
+        <IconButton onClick={removeTask} aria-label="delete">
+          <Delete color="error"/>
+        </IconButton>
+      </Stack>
     </>
       </Box>
   </form>

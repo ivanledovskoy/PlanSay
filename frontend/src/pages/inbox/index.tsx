@@ -1,14 +1,15 @@
-import { FormGroup, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { FormGroup, ListItem, ListItemButton, ListItemIcon, ListItemText, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { getTasks } from "../../store/thunks/tasks";
 import { useStyles } from "./styles";
-import {EditCalendar, Inbox, StarOutline} from '@mui/icons-material';
+import {EditCalendar} from '@mui/icons-material';
 import TopBarComponent from "../../components/top-bar";
 import TaskEditorDialogNew from "../../components/task-editor";
-import { ISelectedElement } from "../../common/types/tasks";
 
 const InboxComponent = () => {
+  const [filter, setFilter] = useState('')
+
   const dispatch = useAppDispatch()
   const classes = useStyles()
 
@@ -17,14 +18,26 @@ const InboxComponent = () => {
   }, [])
 
   const all_tasks = useAppSelector(state => state.tasks.all_tasks)
-  console.log('tasks', all_tasks)
+  
+
+  const [openDialogs, setOpenDialogs] = useState<Record<string, boolean>>({});
+
+  const handleOpen = (elementId: string) => {
+    setOpenDialogs(prev => ({ ...prev, [elementId]: true }));
+  };
+
+  const handleClose = (elementId: string) => {
+    setOpenDialogs(prev => ({ ...prev, [elementId]: false }));
+  };
+  
 
   const renderInbox = (tasks: any) => {
     return tasks.map((element: any, index: any) => 
+        (element.title.includes(filter) || element.description.value.includes(filter)) ? (
         <ListItem key={element.id}>
             <ListItemButton 
             className={classes.navItem}
-            onClick = {() => handleClickOpen(element)}>
+            onClick={() => handleOpen(element.id)}>
                 <ListItemIcon>
                   <EditCalendar />
                 </ListItemIcon>
@@ -32,36 +45,24 @@ const InboxComponent = () => {
                     <Typography variant={"body1"}>{element.title}</Typography>
                 </ListItemText>
             </ListItemButton>
+            <TaskEditorDialogNew
+              open={openDialogs[element.id] || false}
+              onClose={() => handleClose(element.id)}
+              taskTitle={element.title}
+              taskDescription={element.description.value}
+              taskId={element.id}
+            />
         </ListItem>
+        ) : null
     )
-}
+  }
 
-const [open, setOpen] = React.useState(false);
-const [selectedElement, setSelectedElement] = useState<any>();
-
-const handleClickOpen = (element: any) => {
-  setSelectedElement(element)
-  setOpen(true);
-};
-
-const handleClose = () => {
-  setOpen(false);
-};
-  
   return (
     <div>
-      <TopBarComponent title={"Входящие"}/>
+      <TopBarComponent title={"Входящие"} setFilter={setFilter}/>
       <FormGroup>
         {renderInbox(all_tasks)}
       </FormGroup>
-
-      <TaskEditorDialogNew
-        open_props={open}
-        onClose_props={handleClose}
-        selectedElement_props={selectedElement}
-        taskTitle={selectedElement?.title || ''}
-        taskDescription={selectedElement?.description?.value || ''}
-      />
     </div>
   )
 };

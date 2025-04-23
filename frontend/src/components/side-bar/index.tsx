@@ -15,6 +15,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "../flex-between";
 import { accountMenu, navMenu } from "../../common/moks/navigate";
 import { tokens } from "../../theme";
+import { AddTask } from "@mui/icons-material";
+import TaskEditorDialogNew from "../task-editor";
 
 const SidebarComponent = (props: any) => {
   const [active, setActive] = useState('')
@@ -49,6 +51,8 @@ const SidebarComponent = (props: any) => {
     )
 }
 
+const [open, setOpen] = useState(false);
+
   return (
     <Box component='nav'>
         {isOpen && (
@@ -79,10 +83,24 @@ const SidebarComponent = (props: any) => {
                             </Box>
                         </FlexBetween>
                     </Box>
+                    <List>
+                        {renderMenu(navMenu)}
+                    </List>
                     <List
                         sx={{marginBottom: '150px'}}
                     >
-                        {renderMenu(navMenu)}
+                        <ListItem>
+                            <ListItemButton 
+                            className={classes.navItem}
+                            onClick={() => setOpen(true)}>
+                                <ListItemIcon>
+                                    <AddTask />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    <Typography variant={"body1"}>Добавить задачу</Typography>
+                                </ListItemText>
+                            </ListItemButton>
+                        </ListItem>
                     </List>
                 </Box> 
                 <Box width='100%'>
@@ -92,6 +110,13 @@ const SidebarComponent = (props: any) => {
                 </Box> 
             </Drawer>
         )}
+    <TaskEditorDialogNew
+        open={open}
+        onClose={() => setOpen(false)}
+        taskTitle={''}
+        taskDescription={''}
+        taskId={null}
+    />
     </Box>
   )
 };
