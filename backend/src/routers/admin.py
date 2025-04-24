@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from database import get_db
 from utils import handle_db_exception
-from routers.auth import get_current_active_auth_user
+from routers.auth import get_current_active_auth_user, check_active_session
 from models.users import User
 from crud.users import get_all_users_info, get_user_by_id, get_user_info_by_id, update_user_info_by_id, delete_user_by_id
+from crud.sessions import _delete_session_by_user_id
 from schemas.users import UserResponse, UserUpdate
 
 
@@ -41,6 +42,16 @@ def block_user_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_
         return status.HTTP_403_FORBIDDEN
     deactive = UserUpdate(active=False)
     return update_user_info_by_id(id, deactive, db)
+
+
+@router.delete("/deactivate-sessions/{id}", summary="Деактивация сессий по id пользователя")
+def deactivate_sessions_by_user_id(id: int, db: Session = Depends(get_db),
+                                   user = Depends(get_current_active_auth_user),
+                                   payload: dict = Depends(check_active_session)):
+    target_user = get_user_info_by_id(id, db)
+    if user.role == 'user' or target_user.role == 'root':
+        return status.HTTP_403_FORBIDDEN
+    return _delete_session_by_user_id(db, id, payload.get("session_id"))
 
 
 @router.delete("/user/{id}", summary="Удаление пользователя")
