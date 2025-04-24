@@ -7,7 +7,6 @@ from database import get_db
 from models.tasks import Task
 from models.users import User
 from routers.auth import get_current_auth_user
-from crud.tasks import _get_tasks_with_filter, _create_task, _create_description
 from models.descriptions import Description
 from routers.auth import get_current_active_auth_user
 from crud.tasks import _get_task_by_id, _get_tasks_with_filter, _create_task, _delete_task
