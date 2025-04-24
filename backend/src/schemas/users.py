@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 class UserUpdate(BaseModel):
-    password: str | None = Field(min_length=8, max_length=30)
+    password: str | None = None
     role: str | None = None
     active: bool | None = None
 
@@ -11,6 +12,7 @@ class UserCredential(BaseModel):
 
 
 class UserResponse(BaseModel):
-    email: str | None = None
-    role: str | None = None
-    active: bool | None = None
+    user_id: int
+    email: str
+    role: str
+    active: bool
