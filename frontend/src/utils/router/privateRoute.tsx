@@ -1,10 +1,17 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hook";
+import { checkAdmin, useAuth } from "../hook";
 
 const PrivateRoute = () => {
     const auth = useAuth()
     return (
         auth ? <Outlet /> : <Navigate to="login" />
+    );
+}
+
+export const AdminRoute = () => {
+    const auth = checkAdmin()
+    return (
+        auth ? <Outlet /> : <Navigate to="/inbox" />
     );
 }
 
