@@ -80,7 +80,7 @@ def read_key():
         with open("jwt-public.pem", "r") as f:
             return f.read().strip()
     except FileNotFoundError:
-        logger.error(f"JWT public file not found: {"jwt-public.pem"}")
+        logger.error(f"JWT public file not found: jwt-public.pem")
         raise
     except Exception as e:
         logger.error(f"Error reading JWT public: {e}")

@@ -13,6 +13,7 @@ import { ColorModeContext, useMode } from './theme';
 import {CssBaseline, ThemeProvider} from '@mui/material'
 import LogoutComponent from './pages/logout';
 import AdminComponent from './pages/admin';
+import TelegramComponent from './pages/telegram';
 
 const URL = "https://i.imgur.com/L95wKD3.png"
 
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/account" element={<AccountComponent/>}/>
                 <Route path="/logout" element={<LogoutComponent/>}/>
                 <Route path="/admin" element={<AdminComponent/>}/>
+                <Route path="/telegram-bot" element={<TelegramComponent/>}/>
               </Route>
               <Route path="/login" element={<AuthRootComponent/>}/>
               <Route path="/register" element={<AuthRootComponent/>}/>
