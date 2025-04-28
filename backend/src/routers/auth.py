@@ -57,7 +57,9 @@ def get_current_token_payload(
 
 def check_active_session(payload: dict = Depends(get_current_token_payload), db: Session = Depends(get_db)):
     if _session_is_active(db, payload.get("session_id")):
+        print("ACTIVE!!!")
         return payload
+    print("NOT ACTIVE!!!")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Сессия не активна")
 
 def get_current_auth_user(
@@ -139,7 +141,7 @@ def get_current_token_payload(
     return payload
 
 def get_current_auth_user(
-        payload: dict = Depends(get_current_token_payload),
+        payload: dict = Depends(check_active_session),
 ) -> UserLoginSchema:
     email: EmailStr | None = payload.get("sub")
     if user := User.getUserByEmail(email):

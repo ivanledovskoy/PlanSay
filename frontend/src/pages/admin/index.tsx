@@ -50,7 +50,7 @@ const AdminComponent = () => {
     //dispatch(getInbox(sessionStorage.getItem('token')))
   }
 
-  const renderInbox = (tasks: any) => {
+  const renderAdmin = (tasks: any) => {
     return tasks.map((element: any, index: any) => 
         <ListItem key={element.id}>
             <ListItemButton 
@@ -69,6 +69,8 @@ const AdminComponent = () => {
               onClose={() => handleClose(index)}
               email={element.email}
               role={element.role}
+              userId={element.user_id}
+              active={element.active}
             />
         </ListItem>
     )
@@ -78,7 +80,7 @@ const AdminComponent = () => {
     <div>
       <TopBarComponent title={"Админ-панель"} setFilter={setFilter}/>
       <FormGroup>
-        {renderInbox(all_tasks)}
+        {renderAdmin(all_tasks)}
       </FormGroup>
     </div>
   )

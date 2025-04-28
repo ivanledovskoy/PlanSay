@@ -29,15 +29,16 @@ import { DateTimePicker, LocalizationProvider, renderTimeViewClock } from "@mui/
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { IPropsTasks } from "../../common/types/tasks";
-import AppLoadingButton, { BigRedButton } from "../loading-button";
+import AppLoadingButton, { BigGreenButton, BigRedButton } from "../loading-button";
 import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { instance } from "../../utils/axios";
 import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
 import { Delete, Search } from "@mui/icons-material";
+import { getUsersList } from "../../store/thunks/tasks";
 
 export const UserEditor = (props: any) => {
-    const { open, onClose, email, role} = props;
+    const { open, onClose, email, role, userId, active} = props;
 
     let newDate = ''
 
@@ -73,14 +74,27 @@ export const UserEditor = (props: any) => {
       );
     }
 
-    const removeTask = async () => {
-      // try {
-      //   if (taskId) {
-      //     await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
-      //   }
-      // } catch (error) {
-      //   console.log(error)
-      // }
+    const blockUser = async (data: any) => {
+      try {
+        if (userId) {
+          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      dispatch(getUsersList(sessionStorage.getItem('token')))
+      onClose()
+    }
+
+    const deactivateUserSession = async () => {
+      try {
+        if (userId) {
+          await instance.delete( `/admin/deactivate-sessions/${userId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      dispatch(getUsersList(sessionStorage.getItem('token')))
       onClose()
     }
 
@@ -178,8 +192,9 @@ export const UserEditor = (props: any) => {
         />
       
       <AppLoadingButton loading={false} type="submit" sx={{ margin: 'auto', marginTop: 5, marginBottom: 10, width: '60%'}} variant="contained">Сменить пароль</AppLoadingButton>
-      <BigRedButton onClick={() => console.log("Block")} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Заблокировать пользователя</BigRedButton>
-      <BigRedButton onClick={() => console.log("Deactivate")} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Деактивировать сессии</BigRedButton>
+      {(active === true ? <BigRedButton onClick={() => blockUser({"active": !active})} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Заблокировать пользователя</BigRedButton>
+      : <BigGreenButton onClick={() => blockUser({"active": !active})} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Разблокировать пользователя</BigGreenButton>)}
+      <BigRedButton onClick={() => deactivateUserSession()} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Деактивировать сессии</BigRedButton>
     </>
       </Box>
   </form>
