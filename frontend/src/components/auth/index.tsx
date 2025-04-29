@@ -38,7 +38,7 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                 setNotification(resp.payload)
             }
             else {
-                navigate('/')
+                navigate('/inbox')
             }
         }
         else {

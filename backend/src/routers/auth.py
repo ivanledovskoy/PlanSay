@@ -57,7 +57,9 @@ def get_current_token_payload(
 
 def check_active_session(payload: dict = Depends(get_current_token_payload), db: Session = Depends(get_db)):
     if _session_is_active(db, payload.get("session_id")):
+        print("ACTIVE!!!")
         return payload
+    print("NOT ACTIVE!!!")
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Сессия не активна")
 
 def get_current_auth_user(
@@ -126,11 +128,36 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
 def password_change(new_creds: UserCredential, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     return update_user_info_by_id(user.user_id, UserUpdate(password=new_creds.password), db)
 
+http_bearer = HTTPBearer()
+
+def get_current_token_payload(
+        credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
+) -> UserLoginSchema:
+    token = credentials.credentials
+    try:
+        payload = decode_jwt(token=token)
+    except InvalidTokenError as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Некорректный токен: {e}")
+    return payload
+
+def get_current_auth_user(
+        payload: dict = Depends(check_active_session),
+) -> UserLoginSchema:
+    email: EmailStr | None = payload.get("sub")
+    if user := User.getUserByEmail(email):
+        return user
+    raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Некорректный токен")
 
 @router.delete("/deactivate-session", summary="Деактивация сессий пользователя")
 def deactivate_session(db: Session = Depends(get_db), payload: dict = Depends(check_active_session)):
     return _delete_session_by_user_id(db, payload.get("user_id"), payload.get("session_id"))
 
+def get_current_active_auth_user(
+        dbUser: UserLoginSchema = Depends(get_current_auth_user),
+):
+    if dbUser.active:
+        return dbUser
+    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Сессия деактивирована")
 
 @router.get("/users/me")
 def auth_user_check_self_info(

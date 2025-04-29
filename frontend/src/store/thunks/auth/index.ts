@@ -7,7 +7,10 @@ export const loginUser = createAsyncThunk(
     async (data: ILoginData, {rejectWithValue}) => {
         try {
             const token = await instance.post('/login', data)
-            sessionStorage.setItem('token', token.data)
+            sessionStorage.setItem('token', token.data.token_info.access_token)
+            if (token.data.is_admin === true) {
+                sessionStorage.setItem('admin', "true")
+            }
             return token.data
         } 
         catch (e: any) {

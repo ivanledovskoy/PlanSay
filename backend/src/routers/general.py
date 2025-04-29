@@ -1,10 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from schemas.tasks import TaskCreate, TaskUpdate
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from database import get_db
 from models.tasks import Task
+from models.users import User
+from routers.auth import get_current_auth_user
+from models.descriptions import Description
 from routers.auth import get_current_active_auth_user
 from crud.tasks import _get_task_by_id, _get_tasks_with_filter, _create_task, _delete_task
 from crud.descriptions import _create_description, _update_description
@@ -62,3 +65,45 @@ def put_task_by_id(id: int, task_data: TaskUpdate, db: Session = Depends(get_db)
         db.commit()
         db.refresh(task)
         return status.HTTP_200_OK
+
+@router.post("/telegram/tasks", summary="Добавление задачи от Telegram бота")
+def create_task_from_telegram(
+    task_data: dict, 
+    db: Session = Depends(get_db)
+):
+    try:
+        user_id = task_data.get("user_id")
+        print(user_id)
+        title = task_data.get("title")
+        print(title)
+        
+        if not user_id or not title:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="User_id и заголовок задачи обязательны"
+            )
+
+        user = User.getUserByUser_id(user_id)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Пользователь с таким user_id не найден"
+            )
+
+        task_create = TaskCreate(
+            title=title,
+            description=None,
+            remember_data=None
+        )
+
+        new_task = _create_task(db, task_create, user_id)
+        
+        return {"status": "success", "task_id": new_task.id}
+
+    except Exception as e:
+        logger.error(f"Ошибка при создании задачи из Telegram: {e}")
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Ошибка при создании задачи"
+        )

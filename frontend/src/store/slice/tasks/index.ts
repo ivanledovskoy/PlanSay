@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { getTasks } from "../../thunks/tasks"
+import { getInbox } from "../../thunks/tasks"
 
 const initialState: any = {
     all_tasks: []
@@ -10,7 +10,7 @@ export const tasksSlice = createSlice({
     initialState,
     reducers: {},
     extraReducers: builder => {
-        builder.addCase(getTasks.fulfilled, (state, action) => {
+        builder.addCase(getInbox.fulfilled, (state, action) => {
             state.all_tasks = action.payload
         })
     }
