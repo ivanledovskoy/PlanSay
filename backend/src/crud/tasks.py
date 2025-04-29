@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from models.tasks import Task
 from models.descriptions import Description
 from datetime import datetime
+import os
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(message)s')
@@ -51,6 +52,13 @@ def _delete_task(db: Session, user_id: int, task_id: int):
     task = _get_task_by_id(db, user_id, task_id)
     if not task:
         return status.HTTP_204_NO_CONTENT
+    delete_files(task)
     db.delete(task)
     db.commit()
     return status.HTTP_200_OK
+
+
+def delete_files(task):
+    files = [f.path_to_file for f in task.uploaded_files]
+    for file in files:
+        os.remove(file)

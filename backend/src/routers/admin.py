@@ -6,7 +6,9 @@ from routers.auth import get_current_active_auth_user, check_active_session
 from models.users import User
 from crud.users import get_all_users_info, get_user_by_id, get_user_info_by_id, update_user_info_by_id, delete_user_by_id
 from crud.sessions import _delete_session_by_user_id
+from crud.tasks import delete_files
 from schemas.users import UserResponse, UserUpdate
+import os
 
 
 router = APIRouter(tags=['Администрирование'])
@@ -20,7 +22,7 @@ def get_users(db: Session = Depends(get_db), user = Depends(get_current_active_a
 
 
 @router.get("/user/{id}", summary="Получение информации о конкретном пользователе")
-def get_user_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
+def get_user_info_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     if user.role == 'user':
         return status.HTTP_403_FORBIDDEN
     user_data = get_user_info_by_id(id, db)
@@ -55,8 +57,10 @@ def deactivate_sessions_by_user_id(id: int, db: Session = Depends(get_db),
 
 
 @router.delete("/user/{id}", summary="Удаление пользователя")
-def api_delete_user_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
-    target_user = get_user_info_by_id(id, db)
+def api_delete_user_by_id(id: int, db: Session = Depends(get_db), user: User = Depends(get_current_active_auth_user)):
+    target_user: User = get_user_by_id(id, db)
     if user.role == 'user' or target_user.role == 'root':
         return status.HTTP_403_FORBIDDEN
+    for task in target_user.tasks:
+        delete_files(task)
     return delete_user_by_id(id, db)

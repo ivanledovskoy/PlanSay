@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 from .description import DescriptionResponse
+from .uploaded_file import UploadedFileResponse
 
 class TaskCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=255)
@@ -22,3 +23,4 @@ class TaskResponse(BaseModel):
     is_completed: bool
     user_id: int
     description: DescriptionResponse | None = None
+    uploaded_files: list[UploadedFileResponse] | None = None

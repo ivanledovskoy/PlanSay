@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from schemas.tasks import TaskCreate, TaskUpdate
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -10,7 +10,7 @@ from routers.auth import get_current_auth_user
 from models.descriptions import Description
 from routers.auth import get_current_active_auth_user
 from crud.tasks import _get_task_by_id, _get_tasks_with_filter, _create_task, _delete_task
-from crud.descriptions import _create_description, _get_description_by_id, _update_description
+from crud.descriptions import _create_description, _update_description
 from utils import handle_db_exception
 import logging
 
