@@ -19,7 +19,7 @@ import {
     Stack,
     TextField,
     Typography,
-    useTheme
+    useTheme,
 } from '@mui/material'
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "../flex-between";
@@ -34,10 +34,10 @@ import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { instance } from "../../utils/axios";
 import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
-import { Delete, Search } from "@mui/icons-material";
+import { Delete, Search, AttachFile, Attachment } from "@mui/icons-material";
 
 export const TaskEditorDialogNew = (props: any) => {
-    const { open, onClose, taskTitle, taskDescription, taskId} = props;
+    const { open, onClose, taskTitle, taskDescription, taskId, uploadedFiles} = props;
 
     let newDate = ''
 
@@ -102,6 +102,21 @@ export const TaskEditorDialogNew = (props: any) => {
       onClose()
     }
 
+    const renderAttachedFile = (files: any) => {
+      return files.map((element: any, index: any) => 
+        <Typography variant="body1" sx={{fontFamily:'Poppins', marginBottom: '4px'}}><span className='incitingText' onClick={() => download()}><AttachFile />{element.name}</span></Typography>
+      )
+    }
+
+    const download = () => {
+          const url = window.URL.createObjectURL(new Blob(['123123']));
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "image.png");
+          document.body.appendChild(link);
+          link.click();
+    }
+
     return (
          <Dialog
          fullWidth={true}
@@ -154,6 +169,8 @@ export const TaskEditorDialogNew = (props: any) => {
         {...register('description')}
         sx = {{marginBottom: 3}}
         />
+      {renderAttachedFile(uploadedFiles)}
+      <Typography variant="body1" sx={{fontFamily:'Poppins', marginTop: '20px', marginBottom: '8px'}}><span className='incitingText' onClick={() => download()}>Добавить файл</span></Typography>
       <DateTimePickerViewRenderers />
       
       <AppLoadingButton loading={false} type="submit" sx={{ margin: 'auto', marginTop: 5, width: '60%'}} variant="contained">Сохранить</AppLoadingButton>

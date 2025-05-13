@@ -5,7 +5,6 @@ import { getInbox, getToday, getUsersList } from "../../store/thunks/tasks";
 import { useStyles } from "./styles";
 import {AccountBox, Delete, EditCalendar} from '@mui/icons-material';
 import TopBarComponent from "../../components/top-bar";
-import TaskEditorDialogNew from "../../components/task-editor";
 import { instance } from "../../utils/axios";
 import UserEditor from "../../components/user-editor";
 
