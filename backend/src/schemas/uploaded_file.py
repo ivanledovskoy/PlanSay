@@ -7,5 +7,6 @@ class UploadedFileCreate(BaseModel):
     content_type: str
 
 class UploadedFileResponse(BaseModel):
+    id: int
     name: str
     content_type: str
