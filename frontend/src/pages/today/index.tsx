@@ -8,6 +8,7 @@ import TopBarComponent from "../../components/top-bar";
 import TaskEditorDialogNew from "../../components/task-editor";
 import dayjs, { Dayjs } from 'dayjs';
 import { instance } from "../../utils/axios";
+import ReCAPTCHA from "react-google-recaptcha"
 
 const InboxComponent = () => {
   const [filter, setFilter] = useState('')
@@ -64,7 +65,7 @@ const InboxComponent = () => {
   
   const renderToday = (tasks: any) => {
     return tasks.map((element: any, index: any) => 
-        (element.title.includes(filter) || element.description.value.includes(filter)) ? (
+        (element.title.includes(filter) || element.description?.value?.includes(filter)) ? (
         <ListItem key={element.id}>
             <Checkbox 
               checked={element.is_completed}   
@@ -88,7 +89,7 @@ const InboxComponent = () => {
               open={openDialogs[element.id] || false}
               onClose={() => handleClose(element.id)}
               taskTitle={element.title}
-              taskDescription={element.description.value}
+              taskDescription={element.description?.value || ''} 
               taskId={element.id}
             />
         </ListItem>
