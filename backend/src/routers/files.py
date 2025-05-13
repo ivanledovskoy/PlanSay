@@ -48,12 +48,15 @@ def iterfile(filename: str):
 @router.get("/files/{file_id}", summary="Выгрузка файла с сервера по id")
 def get_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     file_info = _get_fileinfo_by_id(db, file_id, user.user_id)
+    if not file_info:
+        return status.HTTP_403_FORBIDDEN
     return StreamingResponse(iterfile(file_info.path_to_file), media_type=file_info.content_type)
-
+        
 
 @router.delete("/files/{file_id}", summary="Удалить файл с сервера по id")
 def delete_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     path_to_file = _delete_file_and_get_path(db, file_id, user.user_id)
     if path_to_file and os.path.exists(path_to_file):
         os.remove(path_to_file)
-    return status.HTTP_200_OK
+        return status.HTTP_200_OK
+    return status.HTTP_400_BAD_REQUEST

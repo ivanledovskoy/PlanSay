@@ -20,7 +20,7 @@ def _create_upload_file(db: Session, upload_file: UploadedFileCreate):
 
 def _get_fileinfo_by_id(db: Session, file_id: int, user_id: int):
     file = db.query(UploadedFile)\
-        .options(joinedload(UploadedFile.task))\
+        .join(Task)\
         .filter(UploadedFile.id == file_id, Task.user_id == user_id)\
         .first()
     return file
@@ -29,7 +29,7 @@ def _get_fileinfo_by_id(db: Session, file_id: int, user_id: int):
 def _delete_file_and_get_path(db: Session, file_id: int, user_id: int):
     with handle_db_exception(db):
         file = db.query(UploadedFile)\
-            .options(joinedload(UploadedFile.task))\
+            .join(Task)\
             .filter(UploadedFile.id == file_id, Task.user_id == user_id, UploadedFile.id == file_id)\
             .first()
         if file:
