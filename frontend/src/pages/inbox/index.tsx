@@ -19,7 +19,6 @@ const InboxComponent = () => {
   }, [])
 
   const all_tasks = useAppSelector(state => state.tasks.all_tasks)
-  
 
   const [openDialogs, setOpenDialogs] = useState<Record<string, boolean>>({});
 
@@ -65,6 +64,9 @@ const InboxComponent = () => {
               taskTitle={element.title}
               taskDescription={element.description?.value || ''}
               taskId={element.id}
+              uploadedFiles={element.uploaded_files}
+              // {console.log(element.uploaded_files)}
+              // uploadedFiles={[{"name": "123"}, {"name": "123"}]}
             />
         </ListItem>
         ) : null

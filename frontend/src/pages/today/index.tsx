@@ -91,6 +91,7 @@ const InboxComponent = () => {
               taskTitle={element.title}
               taskDescription={element.description?.value || ''} 
               taskId={element.id}
+              uploadedFiles={element.uploaded_files}
             />
         </ListItem>
         ) : null

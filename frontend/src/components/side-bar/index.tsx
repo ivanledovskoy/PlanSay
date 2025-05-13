@@ -125,6 +125,7 @@ const [open, setOpen] = useState(false);
         taskTitle={''}
         taskDescription={''}
         taskId={null}
+        uploadedFiles={[]}
     />
     </Box>
   )
