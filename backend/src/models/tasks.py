@@ -16,6 +16,7 @@ class Task(Base):
     
     user: Mapped['User'] = relationship("User", back_populates="tasks")
     description: Mapped['Description'] = relationship("Description", uselist=False, back_populates="task", cascade="all, delete-orphan")
+    uploaded_files: Mapped[list['UploadedFile']] = relationship("UploadedFile", back_populates="task", cascade="all, delete-orphan")
 
     def __init__(self, title: str, create_data: datetime, remember_data: datetime, is_completed: bool,
                  user_id: int):
