@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useId, useState } from "react"
 import {
     Box, 
     Button, 
@@ -35,6 +35,7 @@ import { useAppDispatch, useAppSelector } from "../../utils/hook";
 import { instance } from "../../utils/axios";
 import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
 import { Delete, Search, AttachFile, Attachment } from "@mui/icons-material";
+import FileUploadButton from "../upload-button";
 
 export const TaskEditorDialogNew = (props: any) => {
     const { open, onClose, taskTitle, taskDescription, taskId, uploadedFiles} = props;
@@ -104,17 +105,25 @@ export const TaskEditorDialogNew = (props: any) => {
 
     const renderAttachedFile = (files: any) => {
       return files.map((element: any, index: any) => 
-        <Typography variant="body1" sx={{fontFamily:'Poppins', marginBottom: '4px'}}><span className='incitingText' onClick={() => download()}><AttachFile />{element.name}</span></Typography>
+        <Typography variant="body1" sx={{fontFamily:'Poppins', marginBottom: '4px'}}><span className='incitingText' onClick={() => download(element.id, element.name)}><AttachFile />{element.name}</span></Typography>
       )
     }
 
-    const download = () => {
-          const url = window.URL.createObjectURL(new Blob(['123123']));
-          const link = document.createElement("a");
-          link.href = url;
-          link.setAttribute("download", "image.png");
-          document.body.appendChild(link);
-          link.click();
+    const download = async (file_id: number, filename: string) => {
+          try {
+            const response = await instance.get( `/files/${file_id}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+
+            //const url = window.URL.createObjectURL(new Blob(['123123']));
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: response.data.type }));
+            console.log(url, response.headers)
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", filename);
+            document.body.appendChild(link);
+            link.click();
+          } catch (error) {
+            console.log(error)
+          }
     }
 
     return (
@@ -170,7 +179,17 @@ export const TaskEditorDialogNew = (props: any) => {
         sx = {{marginBottom: 3}}
         />
       {renderAttachedFile(uploadedFiles)}
-      <Typography variant="body1" sx={{fontFamily:'Poppins', marginTop: '20px', marginBottom: '8px'}}><span className='incitingText' onClick={() => download()}>Добавить файл</span></Typography>
+      <FileUploadButton
+        taskId={taskId}
+        accept="image/*,.pdf"
+        variant="contained"
+        color="primary"
+        onSuccess={(response) => console.log('Upload successful:', response)}
+        onError={(error) => console.error('Upload failed:', error)}
+        sx = {{marginTop: "10px", marginBottom: "10px", backgroundColor: "#1900D5 !important"}}
+      >
+        Загрузить файл
+      </FileUploadButton>
       <DateTimePickerViewRenderers />
       
       <AppLoadingButton loading={false} type="submit" sx={{ margin: 'auto', marginTop: 5, width: '60%'}} variant="contained">Сохранить</AppLoadingButton>
