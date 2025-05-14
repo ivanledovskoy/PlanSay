@@ -27,3 +27,5 @@ dist/
 # database
 2fa.db
 **storage
+
+app.log
