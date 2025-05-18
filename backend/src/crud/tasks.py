@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models.tasks import Task
 from models.descriptions import Description
 from datetime import datetime
-import os
+from s3 import s3
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(message)s')
@@ -61,4 +61,5 @@ def _delete_task(db: Session, user_id: int, task_id: int):
 def delete_files(task):
     files = [f.path_to_file for f in task.uploaded_files]
     for file in files:
-        os.remove(file)
+        s3.delete_object(Bucket="plansay", Key=file)
+    return status.HTTP_200_OK

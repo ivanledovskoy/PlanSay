@@ -50,7 +50,7 @@ def get_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = De
 @router.delete("/files/{file_id}", summary="Удалить файл с сервера по id")
 def delete_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     path_to_file = _delete_file_and_get_path(db, file_id, user.user_id)
-    if path_to_file and os.path.exists(path_to_file):
-        os.remove(path_to_file)
+    if path_to_file:
+        s3.delete_object(Bucket="plansay", Key=path_to_file)
         return status.HTTP_200_OK
     return status.HTTP_400_BAD_REQUEST
