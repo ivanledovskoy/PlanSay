@@ -14,6 +14,7 @@ class User(Base):
     password = Column(LargeBinary)
     totp_secret_key = Column(String)
     active = Column(Boolean, default=True)
+    password_reset_required = Column(Boolean, default=False)
     role = Column(String)
     tasks: Mapped[list['Task']] = relationship("Task", back_populates="user", cascade="all, delete-orphan")
     sessions: Mapped[list['UserSession']] = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")

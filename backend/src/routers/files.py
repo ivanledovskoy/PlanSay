@@ -10,6 +10,8 @@ from crud.uploaded_file import _create_upload_file, _get_fileinfo_by_id, _delete
 import os
 import secrets
 import logging
+from s3 import s3
+
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(message)s')
 logger = logging.getLogger(__name__)
@@ -19,11 +21,8 @@ router = APIRouter(tags=['Работа с файлами'])
 def save_file(uploaded_file: UploadFile, user_id: int):
     salt = secrets.token_hex(8)
     file_name = uploaded_file.filename
-    path_to_file = os.path.join("storage", str(user_id), salt + file_name)
-    if not os.path.exists(path_to_file):
-        os.makedirs(os.path.dirname(path_to_file), exist_ok=True)
-    with open(path_to_file, "wb") as f:
-        f.write(uploaded_file.file.read())
+    path_to_file = os.path.join(str(user_id), salt + file_name)
+    s3.upload_fileobj(uploaded_file.file, "plansay", path_to_file)
     return file_name, path_to_file
 
 
@@ -39,19 +38,14 @@ def post_upload_files(task_id: int, uploaded_file: UploadFile, db: Session = Dep
     return _create_upload_file(db, new_uploaded_file)
 
 
-def iterfile(filename: str):
-    with open(filename, "rb") as f:
-        while chunk := f.read(1024 * 1024):
-            yield chunk
-
-
 @router.get("/files/{file_id}", summary="Выгрузка файла с сервера по id")
 def get_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     file_info = _get_fileinfo_by_id(db, file_id, user.user_id)
     if not file_info:
         return status.HTTP_403_FORBIDDEN
-    return StreamingResponse(iterfile(file_info.path_to_file), media_type=file_info.content_type)
-        
+    result = s3.get_object(Bucket="plansay", Key=file_info.path_to_file)
+    return StreamingResponse(content=result["Body"].iter_chunks(), media_type=file_info.content_type)
+
 
 @router.delete("/files/{file_id}", summary="Удалить файл с сервера по id")
 def delete_upload_file_by_id(file_id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
