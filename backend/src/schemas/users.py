@@ -5,6 +5,7 @@ class UserUpdate(BaseModel):
     password: str | None = None
     role: str | None = None
     active: bool | None = None
+    password_reset_required: bool | None = None
 
 
 class UserCredential(BaseModel):
@@ -16,3 +17,4 @@ class UserResponse(BaseModel):
     email: str
     role: str
     active: bool
+    password_reset_required: bool

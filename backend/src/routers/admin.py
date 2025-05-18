@@ -22,7 +22,7 @@ def get_users(db: Session = Depends(get_db), user = Depends(get_current_active_a
 
 
 @router.get("/user/{id}", summary="Получение информации о конкретном пользователе")
-def get_user_info_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
+def get_user_by_id(id: int, db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     if user.role == 'user':
         return status.HTTP_403_FORBIDDEN
     user_data = get_user_info_by_id(id, db)

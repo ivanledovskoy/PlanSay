@@ -121,7 +121,8 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     }
     token = encode_jwt(jwt_payload)
     return {"token_info": TokenInfo(access_token=token, token_type="Bearer"),
-            "is_admin": dbUser.role != 'user'}
+            "is_admin": dbUser.role != 'user',
+            "password_reset_required": dbUser.password_reset_required}
 
 
 @router.post("/password-change", summary="Смена пароля")
