@@ -33,20 +33,18 @@ const AccountComponent = () => {
     };
 
     const changePassword = async (data: any) => {
-        console.log(data)
-        console.log("Please edit me")
-    //   try {
-    //       await instance.post( `/password-change`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
-    //   } catch (error) {
-    //     sessionStorage.clear()
-    //     console.log(error)
-    //   }
+      try {
+          await instance.post( `/password-change`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          sessionStorage.removeItem('password_reset_required')
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     const handleSubmitForm = async (data: any) => {
         console.log(data)
         if (data.password === data.repeatPassword) {
-            await changePassword({"new_password": data.password})
+            await changePassword({"password": data.password})
         }
         else {
             setNotification(AppErrors.PasswordDoNotMatch)

@@ -6,12 +6,16 @@ export const loginUser = createAsyncThunk(
     '/login',
     async (data: ILoginData, {rejectWithValue}) => {
         try {
-            const token = await instance.post('/login', data)
-            sessionStorage.setItem('token', token.data.token_info.access_token)
-            if (token.data.is_admin === true) {
+            const resp = await instance.post('/login', data)
+            sessionStorage.setItem('token', resp.data.token_info.access_token)
+            if (resp.data.is_admin === true) {
                 sessionStorage.setItem('admin', "true")
             }
-            return token.data
+            console.log(resp.data)
+            if (resp.data.password_reset_required === true) {
+                sessionStorage.setItem('password_reset_required', "true")
+            }
+            return resp.data
         } 
         catch (e: any) {
             if (e.response && e.response.data && e.response?.data['detail']) { 

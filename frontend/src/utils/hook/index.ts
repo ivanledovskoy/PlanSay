@@ -8,6 +8,10 @@ export const useAuth = () => {
     return !!sessionStorage.getItem('token')
 }
 
+export const checkPasswordChange = () => {
+    return !!sessionStorage.getItem('password_reset_required')
+}
+
 export const checkAdmin = () => {
     return !!sessionStorage.getItem('admin')
 }

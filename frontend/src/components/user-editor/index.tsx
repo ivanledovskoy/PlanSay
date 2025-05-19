@@ -98,6 +98,18 @@ export const UserEditor = (props: any) => {
       onClose()
     }
 
+    const resetUserPassword = async (data: any) => {
+      try {
+        if (userId) {
+          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      dispatch(getUsersList(sessionStorage.getItem('token')))
+      onClose()
+    }
+
     const handleSubmitForm = async (data: any) => {
       // try {
       //   if (newDate) {
@@ -195,6 +207,7 @@ export const UserEditor = (props: any) => {
       {(active === true ? <BigRedButton onClick={() => blockUser({"active": !active})} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Заблокировать пользователя</BigRedButton>
       : <BigGreenButton onClick={() => blockUser({"active": !active})} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Разблокировать пользователя</BigGreenButton>)}
       <BigRedButton onClick={() => deactivateUserSession()} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Деактивировать сессии</BigRedButton>
+      <BigRedButton onClick={() => resetUserPassword({"password_reset_required": true})} loading={false} sx={{ margin: 'auto', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Сбросить пароль</BigRedButton>
     </>
       </Box>
   </form>

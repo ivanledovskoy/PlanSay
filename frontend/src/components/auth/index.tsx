@@ -38,7 +38,12 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                 setNotification(resp.payload)
             }
             else {
-                navigate('/inbox')
+                if (sessionStorage.getItem('password_reset_required') == "true") {
+                    navigate('/account')
+                }
+                else {
+                    navigate('/inbox')
+                }
             }
         }
         else {

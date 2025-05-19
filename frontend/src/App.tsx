@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Home from './pages/home';
 import InboxComponent from './pages/inbox';
-import PrivateRoute, { AdminRoute } from './utils/router/privateRoute';
+import PrivateRoute, { AccountRoute, AdminRoute } from './utils/router/privateRoute';
 import AuthRootComponent from './components/auth';
 import "./App.css"
 import LayoutComponent from './components/layout';
@@ -30,10 +30,14 @@ function App() {
                 <Route path="/today" element={<TodayComponent/>}/>
                 <Route path="/calendar" element={<CalendarComponent/>}/>
                 <Route path="/inbox" element={<InboxComponent/>}/>
-                <Route path="/account" element={<AccountComponent/>}/>
                 <Route path="/logout" element={<LogoutComponent/>}/>
-                <Route path="/admin" element={<AdminComponent/>}/>
                 <Route path="/telegram-bot" element={<TelegramComponent/>}/>
+              </Route>
+              <Route element={<AccountRoute />}>
+                <Route path="/account" element={<AccountComponent/>}/>
+              </Route>
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminComponent/>}/>
               </Route>
               <Route path="/login" element={<AuthRootComponent/>}/>
               <Route path="/register" element={<AuthRootComponent/>}/>
