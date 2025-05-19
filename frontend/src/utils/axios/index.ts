@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const instance = axios.create({
-  baseURL: 'http://127.0.0.1:8000',
+  baseURL: 'https://127.0.0.1:8000',
   timeout: 1000,
   headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}
 });
