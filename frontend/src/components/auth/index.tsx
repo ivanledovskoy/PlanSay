@@ -11,11 +11,8 @@ import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import { Button, TextField, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Alert } from '@mui/material';
 import { useAppDispatch } from '../../utils/hook';
 import { AppErrors } from '../../common/errors';
-import { AxiosError } from 'axios';
 import { loginUser, registerUser } from '../../store/thunks/auth';
-
-// const URL = "https://i.imgur.com/L95wKD3.png"
-const URL = "https://i.imgur.com/F0UhuxJ.jpeg"
+import GradientImage from '../../images/F0UhuxJ.jpeg';
 
 const AuthRootComponent: React.FC  = (): JSX.Element => {
     const [open2fa, setOpen2fa] = useState(false)
@@ -91,7 +88,9 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
     };
     
     return (
-        <div className="background" style={{ backgroundImage: `url(${URL})` }}>
+        <div className="background" style={{ 
+            backgroundImage: `url(${GradientImage})` 
+            }}>
             <form className='form' onSubmit={handleSubmit(handleSubmitForm)}>
                 <Box
                     display='flex'

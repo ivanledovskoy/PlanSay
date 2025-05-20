@@ -15,8 +15,6 @@ import LogoutComponent from './pages/logout';
 import AdminComponent from './pages/admin';
 import TelegramComponent from './pages/telegram';
 
-const URL = "https://i.imgur.com/L95wKD3.png"
-
 function App() {
   const [theme, colorMode] = useMode()
 
