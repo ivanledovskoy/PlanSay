@@ -37,20 +37,20 @@ pipeline {
                 sh 'docker compose up -d --build'
             }
         }
+    }
 
-        post {
-            always {
-                archiveArtifacts artifacts: 'backend_bandit_report.html', fingerprint: true
+    post {
+        always {
+            archiveArtifacts artifacts: 'backend_bandit_report.html', fingerprint: true
 
-                publishHTML(target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: true,
-                    reportDir: '',
-                    reportFiles: 'backend_bandit_report.html',
-                    reportName: 'Bandit Report'
-                ])
-            }
+            publishHTML(target: [
+                allowMissing: false,
+                alwaysLinkToLastBuild: false,
+                keepAll: true,
+                reportDir: '',
+                reportFiles: 'backend_bandit_report.html',
+                reportName: 'Bandit Report'
+            ])
         }
     }
 }
