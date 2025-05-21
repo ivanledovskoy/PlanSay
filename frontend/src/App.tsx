@@ -31,7 +31,7 @@ function App() {
                 <Route path="/inbox" element={<InboxComponent/>}/>
                 <Route path="/logout" element={<LogoutComponent/>}/>
                 <Route path="/telegram-bot" element={<TelegramComponent/>}/>
-                <Route path="/files/:fileId" element={<FileDownloadPage />} />
+                <Route path="/files/:fileHash" element={<FileDownloadPage />} />
               </Route>
               <Route element={<AccountRoute />}>
                 <Route path="/account" element={<AccountComponent/>}/>

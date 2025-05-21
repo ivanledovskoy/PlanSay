@@ -16,6 +16,7 @@ import { useAppDispatch } from "../../utils/hook";
 import { instance } from "../../utils/axios";
 import { Delete, Search, AttachFile, Share, ContentCopy } from "@mui/icons-material";
 import FileUploadButton from "../upload-button";
+import md5 from 'crypto-js/md5';
 
 export const TaskEditorDialogNew = (props: any) => {
     const { open, onClose, taskTitle, taskDescription, taskId, uploadedFiles} = props;
@@ -100,9 +101,10 @@ export const TaskEditorDialogNew = (props: any) => {
 
 const renderAttachedFile = (files: any) => {
 
-  const handleCopyLink = async (fileId: number) => {
+  const handleCopyLink = async (fileId: number, fileName: string) => {
     try {
-      const fileLink = `${window.location.origin}/files/${fileId}`;
+      const hash = md5(`${fileId}${fileName}`).toString();
+      const fileLink = `${window.location.origin}/files/${hash}`;
       await navigator.clipboard.writeText(fileLink);
       setCopiedFiles(prev => ({ ...prev, [fileId]: true }));
       setTimeout(() => {
@@ -113,12 +115,17 @@ const renderAttachedFile = (files: any) => {
     }
   };
 
-  const toggleShare = (fileId: number) => {
+  const toggleShare = (fileId: number, sharedValue: boolean) => {
     setSharedFileIds(prev => 
       prev.includes(fileId) 
         ? prev.filter(id => id !== fileId) 
         : [...prev, fileId]
     );
+      // try {
+      //   instance.put( `/files/${fileId}`, {'shared': !sharedValue}, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+      // } catch (error) {
+      //   console.log(error)
+      // }
   };
 
   return files.map((element: any) => (
@@ -146,7 +153,7 @@ const renderAttachedFile = (files: any) => {
         {sharedFileIds.includes(element.id) && (
           <IconButton
             aria-label="copy-link"
-            onClick={() => handleCopyLink(element.id)}
+            onClick={() => handleCopyLink(element.id, element.name)}
             sx={{ 
               color: copiedFiles[element.id] ? 'green' : '#1900f5',
               '&:hover': {
@@ -166,7 +173,7 @@ const renderAttachedFile = (files: any) => {
 
         <IconButton 
           aria-label="share"
-          onClick={() => toggleShare(element.id)}
+          onClick={() => toggleShare(element.id, !!element.shared ? element.shared : false)}
           sx={{ 
             color: '#1900f5',
             '&:hover': {
