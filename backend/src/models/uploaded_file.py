@@ -12,6 +12,8 @@ class UploadedFile(Base):
     path_to_file = Column(String)
     name = Column(String)
     content_type = Column(String)
+    shared = Column(Boolean)
+    link = Column(String)
     task: Mapped['Task'] = relationship("Task", back_populates="uploaded_files")
 
     def __init__(self, task_id: int, path_to_file: str, name: str, content_type: str):
@@ -19,3 +21,5 @@ class UploadedFile(Base):
         self.path_to_file = path_to_file
         self.name = name
         self.content_type = content_type
+        self.shared = False
+        self.link = None
