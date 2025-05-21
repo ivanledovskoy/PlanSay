@@ -1,46 +1,18 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_COMPOSE = 'docker compose'
-    }
-
     stages {
-        stage('Checkout') {
+
+        stage('docker compose down') {
             steps {
-                checkout scm
-                script {
-                    echo "Repository URL: ${scm.getUserRemoteConfigs()[0].getUrl()}"
-                    echo "Branch: ${scm.branches[0].name}"
-                }
+                sh 'docker compose down || true'
             }
         }
 
-        stage('Docker compose build') {
+         stage('docker compose up') {
             steps {
-                script {
-                    if (!fileExists('docker-compose.yml')) {
-                        error('docker-compose.yml not found!')
-                    }
-
-                    sh "sudo docker compose down || true"
-
-                    sh "sudo docker compose up -d --build"
-                }
+                sh 'docker compose up -d --build'
             }
-        }
-    }
-
-    post {
-        always {
-            echo 'Pipeline completed - cleanup'
-            sh "sudo docker compose down || true"
-        }
-        success {
-            echo 'Pipeline succeeded!'
-        }
-        failure {
-            echo 'Pipeline failed!'
         }
     }
 }
