@@ -91,7 +91,7 @@ def update_info_upload_file(file_id: int, is_shared: bool, db: Session = Depends
 def get_file_by_link(link: str, db: Session = Depends(get_db)):
     file_info = _get_file_by_link(link, db)
     if not file_info or not file_info.shared:
-        return status.HTTP_403_FORBIDDEN
+        raise HTTPException(status.HTTP_403_FORBIDDEN)
     result = s3.get_object(Bucket="plansay", Key=file_info.path_to_file)
     return StreamingResponse(content=result["Body"].iter_chunks(), media_type=file_info.content_type)
 
