@@ -39,7 +39,7 @@ const TelegramComponent = () => {
           margin='normal' 
           label="Token" 
           variant="outlined" 
-          value={sessionStorage.getItem('token')}
+          value={localStorage.getItem('token')}
           InputProps={{
             readOnly: true,
           }}

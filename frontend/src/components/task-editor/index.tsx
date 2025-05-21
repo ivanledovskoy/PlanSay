@@ -14,7 +14,7 @@ import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
 import { useAppDispatch } from "../../utils/hook";
 import { instance } from "../../utils/axios";
-import { Delete, Search, AttachFile, Attachment } from "@mui/icons-material";
+import { Delete, Search, AttachFile, Share, ContentCopy } from "@mui/icons-material";
 import FileUploadButton from "../upload-button";
 
 export const TaskEditorDialogNew = (props: any) => {
@@ -27,6 +27,9 @@ export const TaskEditorDialogNew = (props: any) => {
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
     }
+
+  const [sharedFileId, setSharedFileId] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
 
     const {
       register,
@@ -57,7 +60,7 @@ export const TaskEditorDialogNew = (props: any) => {
     const removeTask = async () => {
       try {
         if (taskId) {
-          await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
         console.log(error)
@@ -72,10 +75,10 @@ export const TaskEditorDialogNew = (props: any) => {
         }
 
         if (taskId) {
-          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
         else {
-          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
         console.log(error)
@@ -83,21 +86,111 @@ export const TaskEditorDialogNew = (props: any) => {
       onClose()
     }
 
-    const renderAttachedFile = (files: any) => {
-      return files.map((element: any, index: any) => 
-        <Typography 
-            variant="body1" 
-            sx={{fontFamily:'Poppins', marginBottom: '4px'}}>
-              <span className='incitingText' onClick={() => download(element.id, element.name)}><AttachFile />{element.name}</span>
-        </Typography>
-      )
+  const handleDeleteFile = async (fileId: number) => {
+    try {
+      await instance.delete(`/files/${fileId}`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+      });
+    } catch (error) {
+      console.error('File deletion error:', error);
     }
+  };
+
+const renderAttachedFile = (files: any) => {
+
+  const handleCopyLink = async (fileId: number) => {
+    try {
+      const fileLink = `${window.location.origin}/files/${fileId}`;
+      await navigator.clipboard.writeText(fileLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Copy failed:', error);
+    }
+  };
+
+  return files.map((element: any) => (
+    <Typography 
+      key={element.id}
+      variant="body1" 
+      sx={{
+        fontFamily: 'Poppins',
+        marginBottom: '4px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1
+      }}
+    >
+      <span 
+        className='incitingText' 
+        onClick={() => download(element.id, element.name)}
+        style={{ flexGrow: 1 }}
+      >
+        <AttachFile fontSize="small" />
+        {element.name}
+      </span>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {sharedFileId === element.id && (
+          <IconButton
+            aria-label="copy-link"
+            onClick={() => handleCopyLink(element.id)}
+              sx={{ 
+            color: copied ? 'green' : '#1900f5',
+            '&:hover': {
+              backgroundColor: 'rgba(247, 247, 247, 0.08)'
+            }
+          }}
+          >
+            {copied ? (
+              <Typography variant="caption" sx={{ fontSize: '0.75rem', color: '#1900f5' }}>
+                Скопировано!
+              </Typography>
+            ) : (
+              <ContentCopy fontSize="small" />
+            )}
+          </IconButton>
+        )}
+
+        <IconButton 
+          aria-label="share"
+          onClick={() => setSharedFileId(prev => 
+            prev === element.id ? null : element.id
+          )}
+          sx={{ 
+            color: '#1900f5',
+            '&:hover': {
+              backgroundColor: 'rgba(247, 247, 247, 0.08)'
+            }
+          }}
+        >
+          <Share fontSize="small" />
+        </IconButton>
+
+        <IconButton 
+          aria-label="delete"
+          onClick={() => handleDeleteFile(element.id)}
+          sx={{
+            color: 'error.main',
+            '&:hover': {
+              backgroundColor: 'rgba(244, 67, 54, 0.04)'
+            }
+          }}
+        >
+          <Delete fontSize="small" />
+        </IconButton>
+      </Box>
+    </Typography>
+  ));
+};
 
 const download = async (file_id: number, filename: string) => {
   try {
     const response = await instance.get(`/files/${file_id}`, {
       headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       responseType: 'blob' // Добавляем правильный тип ответа
     });

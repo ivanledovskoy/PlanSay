@@ -34,8 +34,8 @@ const AccountComponent = () => {
 
     const changePassword = async (data: any) => {
       try {
-          await instance.post( `/password-change`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
-          sessionStorage.removeItem('password_reset_required')
+          await instance.post( `/password-change`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+          localStorage.removeItem('password_reset_required')
       } catch (error) {
         console.log(error)
       }
@@ -98,7 +98,7 @@ const AccountComponent = () => {
         />
       <AppLoadingButton loading={false} type="submit" sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Сменить пароль</AppLoadingButton>
       <h1></h1>
-      <BigRedButton onClick={() => dispatch(deactivateSessions(sessionStorage.getItem('token')))} loading={false} sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Деактировать активные сессии</BigRedButton>
+      <BigRedButton onClick={() => dispatch(deactivateSessions(localStorage.getItem('token')))} loading={false} sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Деактировать активные сессии</BigRedButton>
     </>
                 </Box>
                 <Snackbar open={!!notification} autoHideDuration={6000} onClose={handleCloseNoti}>

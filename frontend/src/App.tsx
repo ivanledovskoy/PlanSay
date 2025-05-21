@@ -14,6 +14,7 @@ import {CssBaseline, ThemeProvider} from '@mui/material'
 import LogoutComponent from './pages/logout';
 import AdminComponent from './pages/admin';
 import TelegramComponent from './pages/telegram';
+import FileDownloadPage from './components/file-download-component';
 
 function App() {
   const [theme, colorMode] = useMode()
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/inbox" element={<InboxComponent/>}/>
                 <Route path="/logout" element={<LogoutComponent/>}/>
                 <Route path="/telegram-bot" element={<TelegramComponent/>}/>
+                <Route path="/files/:fileId" element={<FileDownloadPage />} />
               </Route>
               <Route element={<AccountRoute />}>
                 <Route path="/account" element={<AccountComponent/>}/>

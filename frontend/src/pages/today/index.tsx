@@ -17,7 +17,7 @@ const InboxComponent = () => {
   const classes = useStyles()
 
   useEffect(() => {
-    dispatch(getToday(sessionStorage.getItem('token')))
+    dispatch(getToday(localStorage.getItem('token')))
   }, [])
 
   const all_tasks = useAppSelector(state => state.tasks.all_tasks)
@@ -31,36 +31,36 @@ const InboxComponent = () => {
 
   const handleClose = (elementId: string) => {
     setOpenDialogs(prev => ({ ...prev, [elementId]: false }));
-    dispatch(getToday(sessionStorage.getItem('token')))
+    dispatch(getToday(localStorage.getItem('token')))
   };
 
   const removeTask = async (taskId: any) => {
     try {
       if (taskId) {
-        await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       }
     } catch (error) {
-      sessionStorage.clear()
+      localStorage.clear()
       console.log(error)
     }
-    dispatch(getToday(sessionStorage.getItem('token')))
+    dispatch(getToday(localStorage.getItem('token')))
   }
 
     const updateTask = async (taskId: any, data: any) => {
       console.log(taskId, data)
       try {
         if (taskId) {
-          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
-        sessionStorage.clear()
+        localStorage.clear()
         console.log(error)
       }
     }
 
   const handleCheckbox = async (value: boolean, elementId: number) => {
     await updateTask(elementId, {"is_completed": value})
-    dispatch(getToday(sessionStorage.getItem('token')))
+    dispatch(getToday(localStorage.getItem('token')))
   }
   
   const renderToday = (tasks: any) => {
