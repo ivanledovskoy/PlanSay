@@ -33,11 +33,10 @@ const FileDownloadPage = () => {
         link.download = filename;
         link.click();
 
-        // Закрываем окно через 500 мс
         setTimeout(() => {
           window.close();
-          navigate(-1); // На случай если window.close не сработает
-        }, 500);
+          navigate(-1);
+        }, 50);
 
       } catch (error) {
         console.error('Download failed:', error);
@@ -48,7 +47,7 @@ const FileDownloadPage = () => {
     downloadAndClose();
   }, [fileId, navigate]);
 
-  return <div>Загрузка файла...</div>;
+  return <div></div>;
 };
 
 export default FileDownloadPage;

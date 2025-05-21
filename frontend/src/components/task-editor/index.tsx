@@ -28,8 +28,8 @@ export const TaskEditorDialogNew = (props: any) => {
       newDate = value.toISOString()
     }
 
-  const [sharedFileId, setSharedFileId] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [sharedFileIds, setSharedFileIds] = useState<number[]>([]);
+  const [copiedFiles, setCopiedFiles] = useState<{ [key: number]: boolean }>({});
 
     const {
       register,
@@ -104,11 +104,21 @@ const renderAttachedFile = (files: any) => {
     try {
       const fileLink = `${window.location.origin}/files/${fileId}`;
       await navigator.clipboard.writeText(fileLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setCopiedFiles(prev => ({ ...prev, [fileId]: true }));
+      setTimeout(() => {
+        setCopiedFiles(prev => ({ ...prev, [fileId]: false }));
+      }, 2000);
     } catch (error) {
       console.error('Copy failed:', error);
     }
+  };
+
+  const toggleShare = (fileId: number) => {
+    setSharedFileIds(prev => 
+      prev.includes(fileId) 
+        ? prev.filter(id => id !== fileId) 
+        : [...prev, fileId]
+    );
   };
 
   return files.map((element: any) => (
@@ -133,18 +143,18 @@ const renderAttachedFile = (files: any) => {
       </span>
 
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        {sharedFileId === element.id && (
+        {sharedFileIds.includes(element.id) && (
           <IconButton
             aria-label="copy-link"
             onClick={() => handleCopyLink(element.id)}
-              sx={{ 
-            color: copied ? 'green' : '#1900f5',
-            '&:hover': {
-              backgroundColor: 'rgba(247, 247, 247, 0.08)'
-            }
-          }}
+            sx={{ 
+              color: copiedFiles[element.id] ? 'green' : '#1900f5',
+              '&:hover': {
+                backgroundColor: 'rgba(247, 247, 247, 0.08)'
+              }
+            }}
           >
-            {copied ? (
+            {copiedFiles[element.id] ? (
               <Typography variant="caption" sx={{ fontSize: '0.75rem', color: '#1900f5' }}>
                 Скопировано!
               </Typography>
@@ -156,9 +166,7 @@ const renderAttachedFile = (files: any) => {
 
         <IconButton 
           aria-label="share"
-          onClick={() => setSharedFileId(prev => 
-            prev === element.id ? null : element.id
-          )}
+          onClick={() => toggleShare(element.id)}
           sx={{ 
             color: '#1900f5',
             '&:hover': {
