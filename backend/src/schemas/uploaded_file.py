@@ -10,3 +10,4 @@ class UploadedFileResponse(BaseModel):
     id: int
     name: str
     content_type: str
+    shared: bool

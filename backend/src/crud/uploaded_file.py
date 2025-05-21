@@ -39,3 +39,12 @@ def _delete_file_and_get_path(db: Session, file_id: int, user_id: int):
             return path
         else:
             return None
+        
+
+def _get_file_by_link(link: str, db: Session):
+    with handle_db_exception(db):
+        file = db.query(UploadedFile)\
+            .filter(UploadedFile.link == link, UploadedFile.shared == True)\
+            .first()
+        return file
+    
