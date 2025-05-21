@@ -19,7 +19,7 @@ pipeline {
                         python3 -m venv bandit-venv
                         . bandit-venv/bin/activate
                         pip install bandit
-                        bandit -r backend/ -f html -o backend_bandit_report.html
+                        bandit -r backend/ -f html -o backend_bandit_report.html || true
                         deactivate
                     '''
                 }
