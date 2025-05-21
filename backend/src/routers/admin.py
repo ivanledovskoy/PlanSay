@@ -13,6 +13,10 @@ import os
 
 router = APIRouter(tags=['Администрирование'])
 
+@router.get("/ping", summary="Проверка доступности сервиса")
+def ping():
+    return {"message": "pong"}
+
 @router.get("/users", summary="Получение списка пользователей")
 def get_users(db: Session = Depends(get_db), user = Depends(get_current_active_auth_user)):
     if user.role == 'user':
