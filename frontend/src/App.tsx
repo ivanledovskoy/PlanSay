@@ -3,10 +3,13 @@ import { Route, Routes } from 'react-router-dom';
 import Home from './components/home';
 import PrivateRoute from './utils/router/privateRoute';
 import AuthRootComponent from './components/auth';
+import "./App.css"
+
+const URL = "https://i.imgur.com/L95wKD3.png"
 
 function App() {
   return (
-    <div className="app">
+    <div className="background" style={{ backgroundImage: `url(${URL})` }}>
       <Routes>
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Home/>}/>
