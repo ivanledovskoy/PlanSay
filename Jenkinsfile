@@ -12,6 +12,33 @@ pipeline {
             }
         }
 
+        stage('Run Bandit Static Analysis') {
+            steps {
+                script {
+                    sh '''
+                        python3 -m venv bandit-venv
+                        . bandit-venv/bin/activate
+                        pip install bandit
+                        bandit -r backend/ -f html -o backend_bandit_report.html
+                        deactivate
+                    '''
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'backend_bandit_report.html', fingerprint: true
+
+                    publishHTML(target: [
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: false,
+                        keepAll: true,
+                        reportDir: '',
+                        reportFiles: 'backend_bandit_report.html',
+                        reportName: 'Bandit Report'
+                    ])
+                }
+            }
+        }
 
         stage('docker compose down') {
             steps {
@@ -19,7 +46,7 @@ pipeline {
             }
         }
 
-         stage('docker compose up') {
+        stage('docker compose up') {
             steps {
                 sh 'docker compose up -d --build'
             }
