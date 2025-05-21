@@ -5,16 +5,8 @@ services:
     build: backend/
     ports:
       - "8000:8000"
-    networks:
-      - monitoring
-
+      - "443:443"
   frontend:
     build: frontend/
     ports:
       - "3000:3000"
-    networks:
-      - monitoring
-
-networks:
-  monitoring:
-    driver: bridge
