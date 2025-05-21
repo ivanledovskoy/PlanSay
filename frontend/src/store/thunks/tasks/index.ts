@@ -9,7 +9,7 @@ export const getInbox = createAsyncThunk(
             return tasks.data
         } 
         catch (e: any) {
-            sessionStorage.clear()
+            localStorage.clear()
             if (e.response && e.response.data && e.response?.data['detail']) { 
                 return rejectWithValue(e.response?.data['detail'])
             }
@@ -28,7 +28,7 @@ export const getUsersList = createAsyncThunk(
             return tasks.data
         } 
         catch (e: any) {
-            sessionStorage.clear()
+            localStorage.clear()
             if (e.response && e.response.data && e.response?.data['detail']) { 
                 return rejectWithValue(e.response?.data['detail'])
             }
@@ -47,7 +47,7 @@ export const deactivateSessions = createAsyncThunk(
             return tasks.data
         } 
         catch (e: any) {
-            sessionStorage.clear()
+            localStorage.clear()
             if (e.response && e.response.data && e.response?.data['detail']) { 
                 return rejectWithValue(e.response?.data['detail'])
             }
@@ -66,7 +66,7 @@ export const getCalendar = createAsyncThunk(
             return tasks.data
         } 
         catch (e: any) {
-            sessionStorage.clear()
+            localStorage.clear()
             if (e.response && e.response.data && e.response?.data['detail']) { 
                 return rejectWithValue(e.response?.data['detail'])
             }
@@ -85,7 +85,7 @@ export const getToday = createAsyncThunk(
             return tasks.data
         } 
         catch (e: any) {
-            sessionStorage.clear()
+            localStorage.clear()
             if (e.response && e.response.data && e.response?.data['detail']) { 
                 return rejectWithValue(e.response?.data['detail'])
             }
