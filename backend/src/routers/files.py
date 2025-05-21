@@ -12,6 +12,7 @@ import secrets
 import logging
 from hashlib import md5
 from s3 import s3
+from boto3.s3.transfer import TransferConfig, TransferManager
 
 
 logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] - %(message)s')
@@ -19,11 +20,22 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=['Работа с файлами'])
 
+
 def save_file(uploaded_file: UploadFile, user_id: int):
     salt = secrets.token_hex(8)
     file_name = uploaded_file.filename
-    path_to_file = os.path.join(str(user_id), salt + file_name)
-    s3.upload_fileobj(uploaded_file.file, "plansay", path_to_file)
+    path_to_file = f"{user_id}/{salt}_{file_name}"
+
+    try:
+        transfer_config = TransferConfig(multipart_threshold=1024 ** 3)
+        s3.upload_fileobj(
+            uploaded_file.file, 
+            "plansay", 
+            path_to_file, 
+            Config=transfer_config
+        )
+    except Exception as e:
+        logger.exception(e)
     return file_name, path_to_file
 
 
