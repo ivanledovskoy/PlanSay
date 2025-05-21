@@ -18,6 +18,7 @@ import { tokens } from "../../theme";
 import { AddTask } from "@mui/icons-material";
 import TaskEditorDialogNew from "../task-editor";
 import { checkAdmin } from "../../utils/hook";
+import APP_VERSION from '../../config/version';
 
 const SidebarComponent = (props: any) => {
   const [active, setActive] = useState('')
@@ -76,11 +77,36 @@ const [open, setOpen] = useState(false);
                     <Box>
                         <FlexBetween>
                             <Box className={classes.brand}>
-                                <Typography 
+                                {/* <Typography 
                                     variant="h1"
                                     color = {theme.palette.mode === 'dark' ? colors.white.DEFAULT : colors.black.DEFAULT}>
                                     PlanSay
-                                </Typography>
+                                </Typography> */}
+
+
+          <Typography 
+            variant="h1"
+            color={theme.palette.mode === 'dark' ? colors.white.DEFAULT : colors.black.DEFAULT}
+            sx={{ 
+              display: 'flex',
+              alignItems: 'baseline',
+              gap: 1
+            }}
+          >
+            PlanSay
+            <Typography 
+              component="span" 
+              variant="caption"
+              color={theme.palette.mode === 'dark' ? 'text.secondary' : 'text.disabled'}
+              sx={{
+                fontSize: '0.6em',
+                verticalAlign: 'baseline',
+                lineHeight: 1.2
+              }}
+            >
+              v{APP_VERSION}
+            </Typography>
+          </Typography>
                             </Box>
                         </FlexBetween>
                     </Box>
