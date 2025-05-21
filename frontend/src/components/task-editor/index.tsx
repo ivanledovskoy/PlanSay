@@ -29,7 +29,14 @@ export const TaskEditorDialogNew = (props: any) => {
       newDate = value.toISOString()
     }
 
-  const [sharedFileIds, setSharedFileIds] = useState<number[]>([]);
+    // Инициализируем состояние с учетом флага shared
+    const [sharedFileIds, setSharedFileIds] = useState<number[]>(() => 
+        (uploadedFiles || [])
+            .filter((file: any) => file.shared === true)
+            .map((file: any) => file.id)
+    );
+
+    console.log(sharedFileIds)
   const [copiedFiles, setCopiedFiles] = useState<{ [key: number]: boolean }>({});
 
     const {
@@ -121,8 +128,10 @@ const renderAttachedFile = (files: any) => {
         ? prev.filter(id => id !== fileId) 
         : [...prev, fileId]
     );
+    const newValue = !sharedFileIds.includes(fileId)
+    console.log("change to", newValue)
       try {
-        instance.post( `/files/${fileId}?is_shared=${!sharedValue}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+        instance.post( `/files/${fileId}?is_shared=${newValue}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       } catch (error) {
         console.log(error)
       }
@@ -173,7 +182,7 @@ const renderAttachedFile = (files: any) => {
 
         <IconButton 
           aria-label="share"
-          onClick={() => toggleShare(element.id, !!element.shared ? element.shared : false)}
+          onClick={() => toggleShare(element.id, element.shared)}
           sx={{ 
             color: '#1900f5',
             '&:hover': {
