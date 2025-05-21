@@ -121,11 +121,11 @@ const renderAttachedFile = (files: any) => {
         ? prev.filter(id => id !== fileId) 
         : [...prev, fileId]
     );
-      // try {
-      //   instance.put( `/files/${fileId}`, {'shared': !sharedValue}, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
-      // } catch (error) {
-      //   console.log(error)
-      // }
+      try {
+        instance.post( `/files/${fileId}?is_shared=${!sharedValue}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+      } catch (error) {
+        console.log(error)
+      }
   };
 
   return files.map((element: any) => (

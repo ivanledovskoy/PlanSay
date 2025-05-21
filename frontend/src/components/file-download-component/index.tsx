@@ -14,7 +14,7 @@ const FileDownloadPage = () => {
       try {
         if (!fileHash) return;
 
-        const response = await instance.get(`/files/${fileHash}`, {
+        const response = await instance.get(`/files/hash/${fileHash}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
