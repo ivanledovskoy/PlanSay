@@ -59,10 +59,10 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
         })}
         sx={{marginBottom: 3}}
         />
-        {/* <ReCAPTCHA
+        <ReCAPTCHA
         sitekey='6Le-uzgrAAAAADRDse82KQKnUC_6h6Z2o-w8XEVh'
         onChange={(val: any) => setCapVal(val)}>
-        </ReCAPTCHA> */}
+        </ReCAPTCHA>
       <AppLoadingButton disabled={!capVal} loading={loading} type="submit" sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Войти</AppLoadingButton>
       <Typography variant="body1" sx={{fontFamily:'Poppins'}}>Нет аккаунта?<span className='incitingText' onClick={() => navigate('/register')}>Регистрация</span></Typography>
     </>
