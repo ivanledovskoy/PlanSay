@@ -33,13 +33,13 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({
         await instance.post( `/tasks/${taskId}`, formData, {headers: {            
             'Accept': 'application/json',
             'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+            'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       }
     } catch (error) {
-      sessionStorage.clear()
+      localStorage.clear()
       console.log(error)
     }
-    //dispatch(getInbox(sessionStorage.getItem('token')))
+    //dispatch(getInbox(localStorage.getItem('token')))
   }
 
     try {
@@ -47,7 +47,7 @@ const FileUploadButton: React.FC<FileUploadButtonProps> = ({
     const response = await instance.post( `/files?task_id=${taskId}`, formData, {headers: {            
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        'Authorization': `Bearer ${localStorage.getItem('token')}`}})
 
       onSuccess?.(response.data);
     } catch (error) {

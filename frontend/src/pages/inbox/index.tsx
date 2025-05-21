@@ -15,7 +15,7 @@ const InboxComponent = () => {
   const classes = useStyles()
 
   useEffect(() => {
-    dispatch(getInbox(sessionStorage.getItem('token')))
+    dispatch(getInbox(localStorage.getItem('token')))
   }, [])
 
   const all_tasks = useAppSelector(state => state.tasks.all_tasks)
@@ -28,19 +28,19 @@ const InboxComponent = () => {
 
   const handleClose = (elementId: string) => {
     setOpenDialogs(prev => ({ ...prev, [elementId]: false }));
-    dispatch(getInbox(sessionStorage.getItem('token')))
+    dispatch(getInbox(localStorage.getItem('token')))
   };
   
   const removeTask = async (taskId: any) => {
     try {
       if (taskId) {
-        await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+        await instance.delete( `/tasks/${taskId}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       }
     } catch (error) {
-      sessionStorage.clear()
+      localStorage.clear()
       console.log(error)
     }
-    dispatch(getInbox(sessionStorage.getItem('token')))
+    dispatch(getInbox(localStorage.getItem('token')))
   }
 
   const renderInbox = (tasks: any) => {

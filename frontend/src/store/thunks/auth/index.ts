@@ -7,16 +7,16 @@ export const loginUser = createAsyncThunk(
     async (data: ILoginData, {rejectWithValue}) => {
         try {
             const resp = await instance.post('/login', data)
-            sessionStorage.setItem('token', resp.data.token_info.access_token)
+            localStorage.setItem('token', resp.data.token_info.access_token)
             if (resp.data.is_admin === true) {
-                sessionStorage.setItem('admin', "true")
+                localStorage.setItem('admin', "true")
             }
             console.log(resp.data)
             if (resp.data.password_reset_required === true) {
-                sessionStorage.setItem('password_reset_required', "true")
+                localStorage.setItem('password_reset_required', "true")
             }
-            else if (!!sessionStorage.getItem('password_reset_required')) {
-                sessionStorage.removeItem('password_reset_required')
+            else if (!!localStorage.getItem('password_reset_required')) {
+                localStorage.removeItem('password_reset_required')
             }
             return resp.data
         } 

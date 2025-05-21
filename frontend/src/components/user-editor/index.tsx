@@ -77,36 +77,36 @@ export const UserEditor = (props: any) => {
     const blockUser = async (data: any) => {
       try {
         if (userId) {
-          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
         console.log(error)
       }
-      dispatch(getUsersList(sessionStorage.getItem('token')))
+      dispatch(getUsersList(localStorage.getItem('token')))
       onClose()
     }
 
     const deactivateUserSession = async () => {
       try {
         if (userId) {
-          await instance.delete( `/admin/deactivate-sessions/${userId}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.delete( `/admin/deactivate-sessions/${userId}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
         console.log(error)
       }
-      dispatch(getUsersList(sessionStorage.getItem('token')))
+      dispatch(getUsersList(localStorage.getItem('token')))
       onClose()
     }
 
     const resetUserPassword = async (data: any) => {
       try {
         if (userId) {
-          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+          await instance.put( `/admin/user/${userId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
         }
       } catch (error) {
         console.log(error)
       }
-      dispatch(getUsersList(sessionStorage.getItem('token')))
+      dispatch(getUsersList(localStorage.getItem('token')))
       onClose()
     }
 
@@ -117,10 +117,10 @@ export const UserEditor = (props: any) => {
       //   }
 
       //   if (taskId) {
-      //     await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+      //     await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       //   }
       //   else {
-      //     await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+      //     await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       //   }
       // } catch (error) {
       //   console.log(error)

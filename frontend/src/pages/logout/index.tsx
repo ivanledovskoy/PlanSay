@@ -6,7 +6,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 const LogoutComponent = () => {
     const navigate = useNavigate()
 
-    sessionStorage.clear()
+    localStorage.clear()
     return (
         <div>
         <Navigate to="/login" />
