@@ -88,7 +88,7 @@ const CalendarComponent = () => {
               open={openDialogs[element.id] || false}
               onClose={() => handleClose(element.id)}
               taskTitle={element.title}
-              taskDescription={element.description.value}
+              taskDescription={element.description?.value || ''}
               taskId={element.id}
               uploadedFiles={element.uploaded_files}
             />

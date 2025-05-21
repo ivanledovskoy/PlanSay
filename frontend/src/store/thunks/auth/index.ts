@@ -15,6 +15,9 @@ export const loginUser = createAsyncThunk(
             if (resp.data.password_reset_required === true) {
                 sessionStorage.setItem('password_reset_required', "true")
             }
+            else if (!!sessionStorage.getItem('password_reset_required')) {
+                sessionStorage.removeItem('password_reset_required')
+            }
             return resp.data
         } 
         catch (e: any) {
