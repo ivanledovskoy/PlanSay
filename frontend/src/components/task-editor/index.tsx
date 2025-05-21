@@ -1,39 +1,19 @@
 import React, { useEffect, useId, useState } from "react"
 import {
     Box, 
-    Button, 
     Dialog, 
-    DialogActions, 
-    DialogContent, 
-    DialogTitle, 
-    Drawer, 
-    Grid, 
     IconButton, 
-    InputAdornment, 
-    InputBase, 
-    List, 
-    ListItem, 
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
     Stack,
     TextField,
     Typography,
-    useTheme,
 } from '@mui/material'
-import { useLocation, useNavigate } from "react-router-dom";
-import FlexBetween from "../flex-between";
-import { accountMenu, navMenu } from "../../common/moks/navigate";
-import { tokens } from "../../theme";
 import { DateTimePicker, LocalizationProvider, renderTimeViewClock } from "@mui/x-date-pickers";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { IPropsTasks } from "../../common/types/tasks";
 import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "../../utils/hook";
+import { useAppDispatch } from "../../utils/hook";
 import { instance } from "../../utils/axios";
-import { getSecondsInDay } from "@mui/x-date-pickers/internals/utils/time-utils";
 import { Delete, Search, AttachFile, Attachment } from "@mui/icons-material";
 import FileUploadButton from "../upload-button";
 
@@ -105,26 +85,50 @@ export const TaskEditorDialogNew = (props: any) => {
 
     const renderAttachedFile = (files: any) => {
       return files.map((element: any, index: any) => 
-        <Typography variant="body1" sx={{fontFamily:'Poppins', marginBottom: '4px'}}><span className='incitingText' onClick={() => download(element.id, element.name)}><AttachFile />{element.name}</span></Typography>
+        <Typography 
+            variant="body1" 
+            sx={{fontFamily:'Poppins', marginBottom: '4px'}}>
+              <span className='incitingText' onClick={() => download(element.id, element.name)}><AttachFile />{element.name}</span>
+        </Typography>
       )
     }
 
-    const download = async (file_id: number, filename: string) => {
-          try {
-            const response = await instance.get( `/files/${file_id}`, {headers: {'Authorization': `Bearer ${sessionStorage.getItem('token')}`}})
+const download = async (file_id: number, filename: string) => {
+  try {
+    const response = await instance.get(`/files/${file_id}`, {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      },
+      responseType: 'blob' // Добавляем правильный тип ответа
+    });
 
-            //const url = window.URL.createObjectURL(new Blob(['123123']));
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: response.data.type }));
-            console.log(url, response.headers)
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", filename);
-            document.body.appendChild(link);
-            link.click();
-          } catch (error) {
-            console.log(error)
-          }
-    }
+    // Получаем MIME-тип из заголовков
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
+    
+    // Создаем Blob с правильными параметрами
+    const blob = new Blob([response.data], { type: contentType });
+    
+    // Создаем временную ссылку
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    // Настраиваем ссылку
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    // Добавляем и активируем
+    document.body.appendChild(link);
+    link.click();
+    
+    // Очистка
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(link);
+
+  } catch (error) {
+    console.error('Download failed:', error);
+  }
+};
 
     return (
          <Dialog
