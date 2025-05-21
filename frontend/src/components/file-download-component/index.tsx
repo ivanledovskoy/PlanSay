@@ -4,15 +4,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { instance } from "../../utils/axios";
 
 const FileDownloadPage = () => {
-  const { fileId } = useParams<{ fileId: string }>();
+  const { fileHash: fileHash } = useParams<{ fileHash: string }>();
   const navigate = useNavigate();
+
+  console.log("hehe", fileHash)
 
   useEffect(() => {
     const downloadAndClose = async () => {
       try {
-        if (!fileId) return;
+        if (!fileHash) return;
 
-        const response = await instance.get(`/files/${fileId}`, {
+        const response = await instance.get(`/files/${fileHash}`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`
           },
@@ -45,7 +47,7 @@ const FileDownloadPage = () => {
     };
 
     downloadAndClose();
-  }, [fileId, navigate]);
+  }, [fileHash, navigate]);
 
   return <div></div>;
 };
