@@ -107,10 +107,9 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     secret_key = dbUser.getSecretKey()
     two_factor_auth = TwoFactorAuth(dbUser.email, secret_key)
 
-    is_valid = two_factor_auth.verify_totp_code(creds.secondFactor)
-    # if not is_valid: PLEASE REMOVE ME. IT IS FOR TESTING
-    if is_valid:
-        raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
+    # is_valid = two_factor_auth.verify_totp_code(creds.secondFactor)
+    # if not is_valid:
+    #     raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
     
     session_id = secrets.token_hex()
     _session_create(db, SessionCreate(user_id=dbUser.user_id, session_id=session_id))
