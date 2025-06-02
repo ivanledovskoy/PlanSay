@@ -17,6 +17,8 @@ import { instance } from "../../utils/axios";
 import { Delete, Search, AttachFile, Share, ContentCopy } from "@mui/icons-material";
 import FileUploadButton from "../upload-button";
 import md5 from 'crypto-js/md5';
+import { useNavigate } from "react-router-dom";
+import { getInbox } from "../../store/thunks/tasks";
 
 export const TaskEditorDialogNew = (props: any) => {
     const { open, onClose, taskTitle, taskDescription, taskId, uploadedFiles} = props;
@@ -24,6 +26,7 @@ export const TaskEditorDialogNew = (props: any) => {
     let newDate = ''
 
     const dispatch = useAppDispatch()
+    const navigate = useNavigate()
     
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
@@ -84,9 +87,11 @@ export const TaskEditorDialogNew = (props: any) => {
 
         if (taskId) {
           await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+          dispatch(getInbox(localStorage.getItem('token')))
         }
         else {
           await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
+          dispatch(getInbox(localStorage.getItem('token')))
         }
       } catch (error) {
         console.log(error)
