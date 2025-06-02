@@ -135,7 +135,7 @@ const AuthRootComponent: React.FC  = (): JSX.Element => {
                             variant="outlined" 
                             placeholder='Введите код двухфакторной аутентификации'
                             helperText={errors.secondFactorRegister ? `${errors.secondFactorRegister.message}` : ''}
-                            {...register('secondFactorRegister', {
+                            {...register('secondFactor', {
                                 minLength: 6,
                                 maxLength: 6
                             })}
