@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from "react"
+import React, { useState } from "react"
 import {
     Box, 
     Dialog, 
@@ -14,11 +14,10 @@ import AppLoadingButton from "../loading-button";
 import { useForm } from "react-hook-form";
 import { useAppDispatch } from "../../utils/hook";
 import { instance } from "../../utils/axios";
-import { Delete, Search, AttachFile, Share, ContentCopy } from "@mui/icons-material";
+import { Delete, AttachFile, Share, ContentCopy } from "@mui/icons-material";
 import FileUploadButton from "../upload-button";
 import md5 from 'crypto-js/md5';
-import { useNavigate } from "react-router-dom";
-import { getInbox } from "../../store/thunks/tasks";
+import { getCalendar, getInbox, getToday } from "../../store/thunks/tasks";
 
 export const TaskEditorDialogNew = (props: any) => {
     const { open, onClose, taskTitle, taskDescription, taskId, uploadedFiles} = props;
@@ -26,7 +25,6 @@ export const TaskEditorDialogNew = (props: any) => {
     let newDate = ''
 
     const dispatch = useAppDispatch()
-    const navigate = useNavigate()
     
     const changeDate = (value: any) =>  {
       newDate = value.toISOString()
@@ -86,12 +84,16 @@ export const TaskEditorDialogNew = (props: any) => {
         }
 
         if (taskId) {
-          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
-          dispatch(getInbox(localStorage.getItem('token')))
+          await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}});
+      (window.location.pathname === "/inbox") ? dispatch(getInbox(localStorage.getItem('token'))) : 
+              (window.location.pathname === "/today") ?  dispatch(getToday(localStorage.getItem('token'))) : 
+              dispatch(getCalendar(localStorage.getItem('token')));
         }
         else {
-          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
-          dispatch(getInbox(localStorage.getItem('token')))
+          await instance.post( '/tasks', data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}});
+      (window.location.pathname === "/inbox") ? dispatch(getInbox(localStorage.getItem('token'))) : 
+              (window.location.pathname === "/today") ?  dispatch(getToday(localStorage.getItem('token'))) : 
+              dispatch(getCalendar(localStorage.getItem('token')))
         }
       } catch (error) {
         console.log(error)
@@ -106,6 +108,9 @@ export const TaskEditorDialogNew = (props: any) => {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
       });
+      (window.location.pathname === "/inbox") ? dispatch(getInbox(localStorage.getItem('token'))) : 
+              (window.location.pathname === "/today") ?  dispatch(getToday(localStorage.getItem('token'))) : 
+              dispatch(getCalendar(localStorage.getItem('token')));
     } catch (error) {
       console.error('File deletion error:', error);
     }
@@ -310,7 +315,9 @@ const download = async (file_id: number, filename: string) => {
         accept="image/*,.pdf"
         variant="contained"
         color="primary"
-        onSuccess={(response) => console.log('Upload successful:', response)}
+        onSuccess={(window.location.pathname === "/inbox") ? () => dispatch(getInbox(localStorage.getItem('token'))) : 
+                    (window.location.pathname === "/today") ? () => dispatch(getToday(localStorage.getItem('token'))) : 
+                    () => dispatch(getCalendar(localStorage.getItem('token')))}
         onError={(error) => console.error('Upload failed:', error)}
         sx = {{marginTop: "10px", marginBottom: "10px", backgroundColor: "#1900D5 !important"}}
       >
