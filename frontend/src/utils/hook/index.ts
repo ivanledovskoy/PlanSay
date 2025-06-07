@@ -5,6 +5,13 @@ export const useAppDispatch: () => AppDispatch = useDispatch
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 export const useAuth = () => {
-    const {isLogged} = useAppSelector((state) => state.auth)
-    return isLogged
+    return !!localStorage.getItem('token')
+}
+
+export const checkPasswordChange = () => {
+    return !!localStorage.getItem('password_reset_required')
+}
+
+export const checkAdmin = () => {
+    return !!localStorage.getItem('admin')
 }

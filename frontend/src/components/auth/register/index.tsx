@@ -1,9 +1,14 @@
-import React, { JSX } from 'react';
+import React, { JSX, useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 import { IPropsRegister } from '../../../common/types/auth';
+import AppLoadingButton from '../../loading-button';
+import { useAppSelector } from '../../../utils/hook';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Element => {
   const {navigate, register, errors} = props
+  const loading = useAppSelector(state => state.auth.isLoading)
+  const [capVal, setCapVal] = useState(null);
 
   return (
     <>
@@ -51,8 +56,13 @@ const RegisterPage: React.FC<IPropsRegister> = (props: IPropsRegister): JSX.Elem
           minLength: 8,
           maxLength: 30
         })}
+        sx={{marginBottom: 3}}
         />
-      <Button type='submit' sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Регистрация</Button>
+        <ReCAPTCHA
+        sitekey='6Le-uzgrAAAAADRDse82KQKnUC_6h6Z2o-w8XEVh'
+        onChange={(val: any) => setCapVal(val)}>
+        </ReCAPTCHA>
+      <AppLoadingButton disabled={!capVal} loading={loading} type='submit' sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Регистрация</AppLoadingButton>
       <Typography variant="body1" sx={{fontFamily:'Poppins'}}>Уже есть аккаунт на PlanSay?<span className='incitingText' onClick={() => navigate('/login')}>Авторизация</span></Typography>
     </>
   );

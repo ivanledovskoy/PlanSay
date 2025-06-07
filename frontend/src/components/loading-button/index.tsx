@@ -1,0 +1,30 @@
+import React from "react"
+import {styled} from "@mui/styles"
+import { LoadingButton } from '@mui/lab';
+
+const AppLoadingButton = styled(LoadingButton)({
+    borderRadius: 4,
+    backgroundColor: '#1900D5 !important',
+    boxShadow: '0px 1px 7px #332a76 !important',
+    padding: '10px 20px !important',
+    maxWidth: 300
+})
+
+export const BigRedButton = styled(LoadingButton)({
+    borderRadius: 4,
+    backgroundColor: '#f5425d !important',
+    boxShadow: '0px 1px 7px #332a76 !important',
+    padding: '10px 20px !important',
+    maxWidth: 300
+})
+
+export const BigGreenButton = styled(LoadingButton)({
+    borderRadius: 4,
+    backgroundColor: '#4efc03 !important',
+    boxShadow: '0px 1px 7px #332a76 !important',
+    padding: '10px 20px !important',
+    maxWidth: 300
+})
+
+
+export default AppLoadingButton;

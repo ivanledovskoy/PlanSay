@@ -9,7 +9,8 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.responses import StreamingResponse
 from pyotp import TOTP
-from src.database import User, SessionLocal
+from database import SessionLocal, get_db
+from models.users import User
 
 app = FastAPI()
 
@@ -64,14 +65,6 @@ class TwoFactorAuth:
 
     def verify_totp_code(self, totp_code: str) -> bool:
         return self.totp.verify(totp_code)
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 def get_two_factor_auth(user_id: str, db=Depends(get_db)) -> TwoFactorAuth:

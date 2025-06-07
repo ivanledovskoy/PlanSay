@@ -1,15 +1,15 @@
-import React, { JSX } from 'react';
+import React, { JSX, useState } from 'react';
 import { TextField, Button, Typography } from '@mui/material';
 import { IPropsLogin } from '../../../common/types/auth';
+import AppLoadingButton from '../../loading-button';
+import { useAppDispatch, useAppSelector } from '../../../utils/hook';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => {
   const {navigate, register, errors} = props
+  const loading = useAppSelector(state => state.auth.isLoading)
 
-  const handleRedirect = () => {
-    setTimeout(() => {
-        window.location.href = 'https://192.168.152.144:3000/login';
-    }, 1000); // в миллисекундах
-};
+  const [capVal, setCapVal] = useState(true);
 
   return (
     <>
@@ -57,8 +57,13 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
           minLength: 6,
           maxLength: 6
         })}
+        sx={{marginBottom: 3}}
         />
-      <Button type="submit" sx={{fontFamily:'Poppins', marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained" onClick={handleRedirect}>Войти</Button>
+        <ReCAPTCHA
+        sitekey='6Le-uzgrAAAAADRDse82KQKnUC_6h6Z2o-w8XEVh'
+        onChange={(val: any) => setCapVal(val)}>
+        </ReCAPTCHA>
+      <AppLoadingButton disabled={!capVal} loading={loading} type="submit" sx={{ marginTop: 2, marginBottom: 1, width: '60%'}} variant="contained">Войти</AppLoadingButton>
       <Typography variant="body1" sx={{fontFamily:'Poppins'}}>Нет аккаунта?<span className='incitingText' onClick={() => navigate('/register')}>Регистрация</span></Typography>
     </>
   );

@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    ports:
+      - "8080:8080"
+    networks:
+      - monitoring
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    restart: unless-stopped
+
+  backend:
+    build: backend/
+    ports:
+      - "8000:8000"
+      - "443:443"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:8000/metrics", "-k"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    networks:
+      - monitoring
+      
+  frontend:
+    build: frontend/
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "https://localhost:3000", "-k"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - monitoring
+      
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./backend/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./backend/prometheus/alert-rules.yml:/etc/prometheus/alert-rules.yml
+    depends_on:
+      - alertmanager
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090", "-k"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  alertmanager:
+    image: prom/alertmanager
+    volumes:
+      - ./backend/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    ports:
+      - "9093:9093"
+    networks:
+      - monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093", "-k"]
+      interval: 5s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  monitoring:
+    driver: bridge
