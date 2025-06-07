@@ -81,3 +81,6 @@ services:
 networks:
   monitoring:
     driver: bridge
+
+  telegram_bot:
+    build: telegram_bot/
