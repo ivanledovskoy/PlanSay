@@ -3,7 +3,7 @@ groups:
     rules:
       - alert: MultipleFailedLoginAttempts
         expr: failed_login_attempts > 5
-        for: 30s
+        for: 3m
         labels:
           severity: critical
         annotations:

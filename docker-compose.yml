@@ -55,7 +55,7 @@ services:
     networks:
       - monitoring
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9090", "-k"]
+      test: ["CMD-SHELL", "wget --no-check-certificate -qO- http://localhost:9090/-/healthy || exit 1"]
       interval: 5s
       timeout: 10s
       retries: 3
@@ -72,7 +72,7 @@ services:
     networks:
       - monitoring
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9093", "-k"]
+      test: ["CMD-SHELL", "wget --no-check-certificate -qO- http://localhost:9093/-/healthy || exit 1"]
       interval: 5s
       timeout: 10s
       retries: 3
