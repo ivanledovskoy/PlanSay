@@ -1,0 +1,53 @@
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - "alert-rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: "backend"
+    scheme: https
+    static_configs:
+      - targets: ["backend:8000"]
+    tls_config:
+      insecure_skip_verify: true
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+remote_write:
+  - url: 'https://monitoring.api.cloud.yandex.net/prometheus/workspaces/moneee54tegn1hktkdgp/api/v1/write'
+    #bearer_token_file: ''
+    # Или сам ключ (не рекомендуется):
+    bearer_token: 'AQVNzE4XWnguQE4yBfiv4jgay0o1_YrdL4HrzUbX'
+    queue_config:
+        max_samples_per_send: 2000 # 10000 в случае использования vmagent
+        min_backoff: 100ms
+        max_backoff: 15s
+        # для Prometheus 2.26 и новее
+        retry_on_http_429: true
+    metadata_config:
+        send: false

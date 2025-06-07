@@ -14,6 +14,7 @@ from crud.sessions import _session_is_active, _delete_session_by_user_id, _sessi
 from schemas.users import UserUpdate, UserCredential
 from schemas.sessions import SessionCreate
 import secrets
+from fastapi.responses import PlainTextResponse
 
 
 class TokenInfo(BaseModel):
@@ -81,6 +82,9 @@ def get_current_active_auth_user(
 
 router = APIRouter(tags=['Авторизация'])
 
+# Определяем izmeritel' из main.py
+failed_login_attempts = None  # Инициализируем переменную
+
 
 @router.post('/register', summary="Регистрация пользователей")
 def generate_qr(two_factor_auth: TwoFactorAuth = Depends(reg_user)):
@@ -94,6 +98,9 @@ def generate_qr(two_factor_auth: TwoFactorAuth = Depends(reg_user)):
 def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     dbUser = User.getUserByEmail(creds.email)
     if dbUser is None or not dbUser.verifyPassword(creds.password):
+        # Увеличиваем izmeritel' при неудачной попытке
+        failed_login_attempts.inc()
+        print("failed_login_attempts: ", failed_login_attempts._value.get())
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Неправильный логин или пароль!"
@@ -110,6 +117,8 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     is_valid = two_factor_auth.verify_totp_code(creds.secondFactor)
     if not is_valid:
         raise HTTPException(status_code=400, detail="Код двухфакторной аутентификации неверный")
+    
+    failed_login_attempts.set(0)
     
     session_id = secrets.token_hex()
     _session_create(db, SessionCreate(user_id=dbUser.user_id, session_id=session_id))
@@ -167,3 +176,14 @@ def auth_user_check_self_info(
         "sub": dbUser.email,
         "user_id": dbUser.user_id
     }
+
+@router.get("/metrics", response_class=PlainTextResponse)
+async def metrics():
+    # Получаем текущее значение счетчика
+    current_failed_logins = failed_login_attempts._value.get()
+
+    # Формируем строку в формате, ожидаемом Prometheus
+    metrics_data = f"# TYPE failed_login_attempts counter\n"
+    metrics_data += f"failed_login_attempts {current_failed_logins}\n"
+
+    return metrics_data

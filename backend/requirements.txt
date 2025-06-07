@@ -43,3 +43,5 @@ uvicorn==0.34.0
 watchfiles==1.0.4
 websockets==15.0.1
 boto3== 1.38.18
+prometheus-fastapi-instrumentator==7.1.0
+prometheus-client==0.22.1
