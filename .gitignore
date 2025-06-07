@@ -1,2 +1,6 @@
 .idea
 bandit-venv
+**/venv
+**/__pycache__
+**/*.log
+**/*.json
