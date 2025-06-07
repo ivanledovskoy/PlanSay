@@ -16,7 +16,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Инициализация Instrumentator
 instrumentator = Instrumentator()
 
@@ -38,9 +37,5 @@ app.include_router(auth.router)
 app.include_router(general_router)
 app.include_router(files_router)
 app.include_router(admin_router, prefix='/admin')
-
-@app.get("/health")
-async def health_check():
-    return Response(status_code=200)
 
 Base.metadata.create_all(bind=engine)

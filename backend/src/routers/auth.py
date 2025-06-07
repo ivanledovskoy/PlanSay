@@ -176,7 +176,7 @@ def auth_user_check_self_info(
         "sub": dbUser.email,
         "user_id": dbUser.user_id
     }
-    
+
 @router.get("/metrics", response_class=PlainTextResponse)
 async def metrics():
     # Получаем текущее значение счетчика

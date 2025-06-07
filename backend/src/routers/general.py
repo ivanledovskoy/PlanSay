@@ -66,44 +66,64 @@ def put_task_by_id(id: int, task_data: TaskUpdate, db: Session = Depends(get_db)
         db.refresh(task)
         return status.HTTP_200_OK
 
+
 @router.post("/telegram/tasks", summary="Добавление задачи от Telegram бота")
 def create_task_from_telegram(
-    task_data: dict, 
-    db: Session = Depends(get_db)
+        task_data: dict,
+        db: Session = Depends(get_db)
 ):
     try:
         user_id = task_data.get("user_id")
-        print(user_id)
         title = task_data.get("title")
-        print(title)
-        
+        remember_data_str = task_data.get("remember_data")
+
+        logger.info(f"Получены данные: user_id={user_id}, title={title}, remember_data={remember_data_str}")
+
         if not user_id or not title:
+            logger.error("Отсутствует user_id или title")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="User_id и заголовок задачи обязательны"
             )
 
+        # Конвертация даты
+        remember_data = None
+        if remember_data_str:
+            try:
+                if isinstance(remember_data_str, str):
+                    remember_data = datetime.fromisoformat(remember_data_str)
+                else:
+                    remember_data = remember_data_str
+                logger.info(f"Конвертирована дата: {remember_data}")
+            except ValueError as e:
+                logger.warning(f"Ошибка конвертации даты: {e}")
+                remember_data = None
+
         user = User.getUserByUser_id(user_id)
         if not user:
+            logger.error(f"Пользователь {user_id} не найден")
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Пользователь с таким user_id не найден"
+                detail="Пользователь не найден"
             )
 
         task_create = TaskCreate(
             title=title,
             description=None,
-            remember_data=None
+            remember_data=remember_data,
+            is_completed=False
         )
 
+        logger.info(f"Создаем задачу: {task_create}")
         new_task = _create_task(db, task_create, user_id)
-        
+        logger.info(f"Создана задача ID: {new_task.id}")
+
         return {"status": "success", "task_id": new_task.id}
 
     except Exception as e:
-        logger.error(f"Ошибка при создании задачи из Telegram: {e}")
+        logger.error(f"Ошибка при создании задачи: {str(e)}", exc_info=True)
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при создании задачи"
+            detail=f"Ошибка при создании задачи: {str(e)}"
         )
