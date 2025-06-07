@@ -25,3 +25,15 @@ class Task(Base):
         self.remember_data = remember_data
         self.is_completed = is_completed
         self.user_id = user_id
+
+    def __str__(self):
+        return (
+            f"Task(title='{self.title}', "
+            f"create_data={self.create_data}, "
+            f"remember_data={self.remember_data}, "
+            f"is_completed={self.is_completed}, "
+            f"user_id={self.user_id})"
+        )
+
+    def __repr__(self):
+        return str(self)

@@ -18,7 +18,7 @@ class STT:
     default_init = {
         "model_path": "models/vosk/vosk-model-small-ru-0.22",  # путь к папке с файлами STT модели Vosk
         "sample_rate": 16000,
-        "ffmpeg_path": "models/vosk/ffmpeg-2025-04-21-git-9e1162bdf1-full_build/bin"  # путь к ffmpeg
+        "ffmpeg_path": "ffmpeg"  # путь к ffmpeg
     }
 
     def __init__(self,
@@ -45,26 +45,21 @@ class STT:
         self.recognizer.SetWords(True)
 
     def _check_model(self):
-        """
-        Проверка наличия модели Vosk на нужном языке в каталоге приложения
-        """
+        """Проверка модели Vosk и доступности FFmpeg"""
         if not os.path.exists(self.model_path):
             raise Exception(
                 "Vosk: сохраните папку model в папку vosk\n"
                 "Скачайте модель по ссылке https://alphacephei.com/vosk/models"
-                            )
+            )
 
-        isffmpeg_here = False
-        for file in os.listdir(self.ffmpeg_path):
-            if file.startswith('ffmpeg'):
-                isffmpeg_here = True
-
-        if not isffmpeg_here:
+        # Проверяем, доступен ли ffmpeg в системе
+        try:
+            subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)
+        except subprocess.CalledProcessError:
             raise Exception(
-                "Ffmpeg: сохраните ffmpeg.exe в папку ffmpeg\n"
-                "Скачайте ffmpeg.exe по ссылке https://ffmpeg.org/download.html"
-                            )
-        self.ffmpeg_path = self.ffmpeg_path + '/ffmpeg'
+                "FFmpeg не установлен. Установите его:\n"
+                "sudo apt install ffmpeg"
+            )
 
     def audio_to_text(self, audio_file_name=None) -> str:
         """
@@ -80,7 +75,7 @@ class STT:
 
         # Конвертация аудио в wav и результат в process.stdout
         process = subprocess.Popen(
-            [self.ffmpeg_path,
+            ["ffmpeg",
              "-loglevel", "quiet",
              "-i", audio_file_name,          # имя входного файла
              "-ar", str(self.sample_rate),   # частота выборки

@@ -16,6 +16,8 @@ import jwt
 
 from stt import STT
 
+from parser import extract_date_and_text
+
 load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -94,14 +96,11 @@ async def process_token(message: Message, state: FSMContext):
         key = read_key()
         payload = jwt.decode(token, key, algorithms=["RS256"])
         backend_user_id = payload.get("user_id")
-
         if not backend_user_id:
             raise ValueError("User ID not found in token")
-
         users[user_id] = str(backend_user_id)
         save_users()
         await state.clear()
-
         await message.reply(
             f"Авторизация успешна! Ваш user_id: {backend_user_id}\n"
             "Используйте /help для списка команд."
@@ -190,6 +189,7 @@ async def process_voice_task(message: types.Message, state: FSMContext):
         await message.reply("Аудио получено, обрабатываю...")
 
         text = stt.audio_to_text(file_on_disk)
+        print(text)
         if not text:
             text = "Не удалось распознать текст."
 
@@ -211,28 +211,43 @@ async def handle_other_messages(message: types.Message):
 
 async def send_task_to_backend(user_id: int, text: str, message: types.Message):
     backend_url = os.getenv("BACKEND_URL")
+    if not backend_url:
+        await message.answer("❌ Ошибка конфигурации: BACKEND_URL не указан")
+        return
+
+    # Извлекаем дату и текст из сообщения
+    task_date, task_text = extract_date_and_text(text)
+
     task_data = {
         "user_id": users[user_id],
-        "title": text
+        "title": task_text,
+        "remember_data": task_date.isoformat() if task_date else None
     }
 
     try:
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(verify=False) as client:
             response = await client.post(
                 f"{backend_url}/telegram/tasks",
                 json=task_data,
-                timeout=10.0
+                timeout=30.0,
+                headers={"Content-Type": "application/json"}
             )
 
-            if response.status_code == 200:
-                await message.answer("✅ Задача успешно добавлена!")
-            else:
-                error_msg = response.json().get("detail", "Неизвестная ошибка.")
-                await message.answer(f"❌ {error_msg}")
-    except Exception as e:
-        logger.error(f"Ошибка соединения с бэкендом: {e}")
-        await message.answer("⚠️ Не удалось соединиться с сервером.")
+            response.raise_for_status()
+            await message.answer("✅ Задача успешно добавлена!" +
+                               (f" На дату: {task_date.strftime('%d.%m.%Y %H:%M')}"
+                                if task_date else ""))
 
+    except httpx.ConnectError:
+        await message.answer("❌ Не удалось подключиться к серверу.")
+    except httpx.TimeoutException:
+        await message.answer("❌ Сервер не ответил вовремя.")
+    except httpx.HTTPStatusError as e:
+        error_msg = e.response.json().get("detail", str(e))
+        await message.answer(f"❌ Ошибка сервера: {error_msg}")
+    except Exception as e:
+        logger.exception(f"Ошибка: {e}")
+        await message.answer("⚠️ Внутренняя ошибка.")
 
 async def main():
     await dp.start_polling(bot)
