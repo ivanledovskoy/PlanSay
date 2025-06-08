@@ -28,13 +28,13 @@ pipeline {
 
         stage('docker compose down') {
             steps {
-                sh 'sudo docker-compose down || true'
+                sh 'docker-compose down || true'
             }
         }
 
         stage('docker compose up') {
             steps {
-                sh 'sudo docker-compose up -d --build'
+                sh 'docker-compose up -d --build'
             }
         }
     }
