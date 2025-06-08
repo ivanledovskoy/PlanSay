@@ -2,7 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y curl && apt-get install -y awscli && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /root/.aws
+
+COPY config /root/.aws/config
+COPY credentials /root/.aws/credentials
+
+RUN chmod 600 /root/.aws/credentials && \
+    chmod 644 /root/.aws/config
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
