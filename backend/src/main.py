@@ -14,8 +14,8 @@ class CSPMiddleware(BaseHTTPMiddleware):
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "img-src 'self' data: https://fastapi.tiangolo.com/img/favicon.png; "
-            "script-src 'self' 'unsafe-inline' https://158.160.123.223:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js; "
-            "style-src 'self' https://158.160.123.223:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css; "
+            "script-src 'self' 'unsafe-inline' https://127.0.0.1:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js; "
+            "style-src 'self' https://127.0.0.1:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css; "
             "frame-ancestors 'self';"
         )
         return response
@@ -44,7 +44,7 @@ app.add_middleware(AddHeadersXContent)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://158.160.123.223:3000"],
+    allow_origins=["https://127.0.0.1:3000", "https://127.0.0.1:8000/"],
     allow_credentials=True,
     allow_methods=["GET", "PUT", "DELETE", "POST"],
     allow_headers=["*"],
