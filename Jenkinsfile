@@ -34,7 +34,7 @@ pipeline {
 
         stage('docker compose up') {
             steps {
-                sh 'docker compose up -d --build'
+                sh 'docker compose up --detach --build'
             }
         }
     }
