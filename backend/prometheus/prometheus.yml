@@ -20,10 +20,6 @@ rule_files:
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "prometheus"
-
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-
     static_configs:
       - targets: ["localhost:9090"]
 
@@ -33,6 +29,25 @@ scrape_configs:
       - targets: ["backend:8000"]
     tls_config:
       insecure_skip_verify: true
+
+  - job_name: 'frontend-probe'
+    metrics_path: /probe
+    params:
+      module: [frontend_https]  # Используем наш новый модуль
+    static_configs:
+      - targets:
+        - https://frontend:3000
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
 
 remote_write:
   - url: 'https://monitoring.api.cloud.yandex.net/prometheus/workspaces/moneee54tegn1hktkdgp/api/v1/write'
