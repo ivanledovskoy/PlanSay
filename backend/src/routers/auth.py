@@ -114,6 +114,7 @@ def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     secret_key = dbUser.getSecretKey()
     two_factor_auth = TwoFactorAuth(dbUser.email, secret_key)
 
+    # TODO: для простоты тестирования захардкодила
     #is_valid = two_factor_auth.verify_totp_code(creds.secondFactor)
     is_valid = 1
     if not is_valid:
