@@ -3,12 +3,12 @@ groups:
     rules:
       - alert: MultipleFailedLoginAttempts
         expr: failed_login_attempts > 5
-        for: 3m
+        for: 1m
         labels:
           severity: critical
         annotations:
           summary: "Многократные неудачные попытки входа"
-          description: "Обнаружено более 5 неудачных попыток входа за последние 3 минуты."
+          description: "Обнаружено более 5 неудачных попыток входа за последнюю минуту."
       - alert: HostHighCpuLoad
         expr: process_cpu_seconds_total > 85
         for: 1m
@@ -17,3 +17,11 @@ groups:
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
           description: "CPU load over > 85%\n VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+      - alert: ContainerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Контейнер {{ $labels.instance }} не работает"
+          description: "Контейнер {{ $labels.job }} ({{ $labels.instance }}) недоступен более 1 минуты"

@@ -1,0 +1,13 @@
+modules:
+  frontend_https:
+    prober: http
+    http:
+      method: GET
+      preferred_ip_protocol: "ip4"
+      follow_redirects: true
+      tls_config:
+        insecure_skip_verify: true
+      valid_status_codes: [200, 301, 302]
+      headers:
+        Host: "frontend:3000"
+        Accept: "*/*"

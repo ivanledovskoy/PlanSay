@@ -65,8 +65,27 @@ services:
       retries: 3
       start_period: 5s
 
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+
+  blackbox:
+    image: prom/blackbox-exporter
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./backend/blackbox/config:/config
+    command:
+      - '--config.file=/config/blackbox.yml'
+    networks:
+      - monitoring
+
   telegram_bot:
     build: telegram_bot/
+
 
 networks:
   monitoring:
