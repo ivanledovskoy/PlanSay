@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import asyncio
 import httpx
 import jwt
+import sys
 
 from stt import STT
 
@@ -47,6 +48,21 @@ logging.basicConfig(
     level=logging.INFO,
     filename="bot.log",
 )
+
+# Настройка основного логгера
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Создаем обработчик для stdout
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+handler.setFormatter(formatter)
+
+# Добавляем обработчик к логгеру
+logger.addHandler(handler)
 
 def save_users():
     with open(USERS_FILE, "w") as f:
@@ -90,11 +106,19 @@ def read_key():
 
 @dp.message(Form.waiting_for_token)
 async def process_token(message: Message, state: FSMContext):
+    logger.info("process_token")
     user_id = message.from_user.id
+    logger.info("user_id = message.from_user.id")
     token = message.text.strip()
+    logger.info("token = message.text.strip()")
     try:
         key = read_key()
+        logger.info("key = read_key()")
+        logger.info(key)
+        header = jwt.get_unverified_header(token)
+        logger.info(f"Token header: {header}")
         payload = jwt.decode(token, key, algorithms=["RS256"])
+        logger.info("payload = jwt.decode(token, key, algorithms=[RS256])")
         backend_user_id = payload.get("user_id")
         if not backend_user_id:
             raise ValueError("User ID not found in token")
@@ -254,5 +278,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    print("Запуск бота")
+    logger.info("Запуск бота")
     asyncio.run(main())

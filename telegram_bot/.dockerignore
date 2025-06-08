@@ -1,0 +1,5 @@
+venv/
+models/ffmpeg-master-latest-linux64-gpl-shared/
+models/ffmpeg-master-latest-linux64-gpl-shared.tar.xz
+models/vosk/ffmpeg-2025-04-21-git-9e1162bdf1-full_build/
+bot.log
