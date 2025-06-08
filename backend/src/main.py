@@ -44,7 +44,7 @@ app.add_middleware(AddHeadersXContent)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://127.0.0.1:3000", "https://127.0.0.1:8000/", "https://0.0.0.0:3000", "https://0.0.0.0:8000/", "https://158.160.123.223:3000", "https://158.160.123.223:8000/", "https://localhost:3000", "https://localhost:8000/"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "PUT", "DELETE", "POST"],
     allow_headers=["*"],
