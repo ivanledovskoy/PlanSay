@@ -17,4 +17,5 @@ WORKDIR /app/src
 EXPOSE 8000 443
 
 RUN rm -f /app/src/2fa.db
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "../nginx-selfsigned2.key", "--ssl-certfile", "../nginx-selfsigned2.crt"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "../nginx-selfsigned2.key", "--ssl-certfile", "../nginx-selfsigned2.crt", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--ssl-keyfile", "../nginx-selfsigned2.key", "--ssl-certfile", "../nginx-selfsigned2.crt", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-server-header", "--header", "Server: None"]
