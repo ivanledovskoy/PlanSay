@@ -1,20 +1,55 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from routers import admin_router, auth_router, general_router, files_router
 from database import Base, engine
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import Counter, Gauge
 from routers import auth
 
+
+class CSPMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "img-src 'self' data: https://fastapi.tiangolo.com/img/favicon.png; "
+            "script-src 'self' 'unsafe-inline' https://localhost:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js; "
+            "style-src 'self' https://localhost:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css; "
+            "frame-ancestors 'self';"
+        )
+        return response
+
+
+class HSTSMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        # Установка заголовка Strict-Transport-Security
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        return response
+
+
+class AddHeadersXContent(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+
 app = FastAPI()
+
+app.add_middleware(CSPMiddleware)
+app.add_middleware(HSTSMiddleware)
+app.add_middleware(AddHeadersXContent)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://localhost:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "PUT", "DELETE", "POST"],
     allow_headers=["*"],
 )
+
 
 # Инициализация Instrumentator
 instrumentator = Instrumentator()
