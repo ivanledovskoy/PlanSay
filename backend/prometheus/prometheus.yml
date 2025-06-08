@@ -34,10 +34,6 @@ scrape_configs:
     tls_config:
       insecure_skip_verify: true
 
-  - job_name: "cadvisor"
-    static_configs:
-      - targets: ["cadvisor:8080"]
-
 remote_write:
   - url: 'https://monitoring.api.cloud.yandex.net/prometheus/workspaces/moneee54tegn1hktkdgp/api/v1/write'
     #bearer_token_file: ''

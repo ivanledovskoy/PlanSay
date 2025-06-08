@@ -17,10 +17,3 @@ groups:
         annotations:
           summary: Host high CPU load (instance {{ $labels.instance }})
           description: "CPU load over > 85%\n VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-      - alert: ContainerUnhealthy
-        expr: container_health_status{name=~".+"} == 0
-        for: 1m
-        labels:
-          severity: critical
-        annotations:
-          summary: "Контейнер {{ $labels.name }} нездоров!"
