@@ -9,5 +9,5 @@ modules:
         insecure_skip_verify: true
       valid_status_codes: [200, 301, 302]
       headers:
-        Host: "frontend:3000"
+        Host: "frontend"
         Accept: "*/*"
