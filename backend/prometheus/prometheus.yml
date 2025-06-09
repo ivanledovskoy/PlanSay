@@ -36,7 +36,7 @@ scrape_configs:
       module: [frontend_https]  # Используем наш новый модуль
     static_configs:
       - targets:
-        - https://frontend:3000
+        - https://frontend
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
