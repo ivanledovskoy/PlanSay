@@ -65,8 +65,6 @@ const InboxComponent = () => {
               taskDescription={element.description?.value || ''}
               taskId={element.id}
               uploadedFiles={element.uploaded_files}
-              // {console.log(element.uploaded_files)}
-              // uploadedFiles={[{"name": "123"}, {"name": "123"}]}
             />
         </ListItem>
         ) : null

@@ -7,8 +7,6 @@ const FileDownloadPage = () => {
   const { fileHash: fileHash } = useParams<{ fileHash: string }>();
   const navigate = useNavigate();
 
-  console.log("hehe", fileHash)
-
   useEffect(() => {
     const downloadAndClose = async () => {
       try {
