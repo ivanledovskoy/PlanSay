@@ -5,9 +5,8 @@ services:
     build: backend/
     ports:
       - "8000:8000"
-      - "443:443"
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:8000/metrics", "-k"]
+      test: ["CMD", "curl", "-f", "https://backend:8000/metrics", "-k"]
       interval: 5s
       timeout: 10s
       retries: 3
@@ -18,9 +17,9 @@ services:
   frontend:
     build: frontend/
     ports:
-      - "3000:3000"
+      - "443:443"
     healthcheck:
-      test: ["CMD", "curl", "-f", "https://localhost:3000", "-k"]
+      test: ["CMD", "curl", "-f", "https://frontend:443", "-k"]
       interval: 5s
       timeout: 10s
       retries: 3
