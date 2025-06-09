@@ -9,7 +9,7 @@ const LoginPage : React.FC<IPropsLogin> = (props: IPropsLogin) : JSX.Element => 
   const {navigate, register, errors} = props
   const loading = useAppSelector(state => state.auth.isLoading)
 
-  const [capVal, setCapVal] = useState(true);
+  const [capVal, setCapVal] = useState(false);
 
   return (
     <>
