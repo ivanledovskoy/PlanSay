@@ -85,6 +85,8 @@ services:
 
   telegram_bot:
     build: telegram_bot/
+    networks:
+      - monitoring
 
 
 networks:
