@@ -46,7 +46,6 @@ const CalendarComponent = () => {
   }
 
     const updateTask = async (taskId: any, data: any) => {
-      console.log(taskId, data)
       try {
         if (taskId) {
           await instance.put( `/tasks/${taskId}`, data, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})

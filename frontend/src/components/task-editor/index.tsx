@@ -37,7 +37,6 @@ export const TaskEditorDialogNew = (props: any) => {
             .map((file: any) => file.id)
     );
 
-    console.log(sharedFileIds)
   const [copiedFiles, setCopiedFiles] = useState<{ [key: number]: boolean }>({});
 
     const {
@@ -139,7 +138,6 @@ const renderAttachedFile = (files: any) => {
         : [...prev, fileId]
     );
     const newValue = !sharedFileIds.includes(fileId)
-    console.log("change to", newValue)
       try {
         instance.post( `/files/${fileId}?is_shared=${newValue}`, {headers: {'Authorization': `Bearer ${localStorage.getItem('token')}`}})
       } catch (error) {

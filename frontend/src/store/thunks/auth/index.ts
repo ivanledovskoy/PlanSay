@@ -11,7 +11,6 @@ export const loginUser = createAsyncThunk(
             if (resp.data.is_admin === true) {
                 localStorage.setItem('admin', "true")
             }
-            console.log(resp.data)
             if (resp.data.password_reset_required === true) {
                 localStorage.setItem('password_reset_required', "true")
             }
