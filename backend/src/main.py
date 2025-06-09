@@ -14,8 +14,8 @@ class CSPMiddleware(BaseHTTPMiddleware):
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "img-src 'self' data: https://fastapi.tiangolo.com/img/favicon.png; "
-            "script-src 'self' 'unsafe-inline' https://158.160.123.223:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js; "
-            "style-src 'self' https://158.160.123.223:8000/ https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css; "
+            "script-src 'self' 'unsafe-inline' https://158.160.123.223 https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js; "
+            "style-src 'self' https://158.160.123.223 https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css; "
             "frame-ancestors 'self';"
         )
         return response
@@ -38,15 +38,15 @@ class AddHeadersXContent(BaseHTTPMiddleware):
 
 app = FastAPI()
 
-app.add_middleware(CSPMiddleware)
-app.add_middleware(HSTSMiddleware)
-app.add_middleware(AddHeadersXContent)
+# app.add_middleware(CSPMiddleware)
+# app.add_middleware(HSTSMiddleware)
+# app.add_middleware(AddHeadersXContent)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://158.160.123.223:443"],
+    allow_origins=["https://158.160.123.223"],
     allow_credentials=True,
-    allow_methods=["GET", "PUT", "DELETE", "POST"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
