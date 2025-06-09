@@ -38,9 +38,9 @@ class AddHeadersXContent(BaseHTTPMiddleware):
 
 app = FastAPI()
 
-app.add_middleware(CSPMiddleware)
-app.add_middleware(HSTSMiddleware)
-app.add_middleware(AddHeadersXContent)
+# app.add_middleware(CSPMiddleware)
+# app.add_middleware(HSTSMiddleware)
+# app.add_middleware(AddHeadersXContent)
 
 app.add_middleware(
     CORSMiddleware,
