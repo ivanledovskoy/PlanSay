@@ -7,8 +7,12 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Многократные неудачные попытки входа"
-          description: "Обнаружено более 5 неудачных попыток входа за последнюю минуту."
+          summary: "Многократные неудачные попытки входа с IP {{ $labels.ip }}"
+          description: |
+            Обнаружено более 5 неудачных попыток входа за последнюю минуту.
+            IP-адрес: {{ $labels.ip }}
+            Количество попыток: {{ $value }}
+            Источник: {{ $labels.instance }}
       - alert: ContainerDown
         expr: up == 0
         for: 1m
@@ -17,3 +21,4 @@ groups:
         annotations:
           summary: "Контейнер {{ $labels.instance }} не работает"
           description: "Контейнер {{ $labels.job }} ({{ $labels.instance }}) недоступен более 1 минуты"
+
