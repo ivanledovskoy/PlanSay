@@ -59,9 +59,8 @@ instrumentator.instrument(app).expose(app)
 
 # Izmeritel' для отслеживания неудачных попыток входа
 failed_login_attempts = Gauge(
-    "failed_login_attempts",
-    "Количество неудачных попыток входа",
-    labelnames=["ip"]  # Метка для IP
+    "failed_login_attempts", 
+    "Количество неудачных попыток входа"
 )
 
 # Передаем izmeritel' в router

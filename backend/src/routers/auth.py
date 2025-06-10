@@ -1,5 +1,5 @@
 import base64
-from fastapi import Depends, HTTPException, status, APIRouter, Request
+from fastapi import Depends, HTTPException, status, APIRouter
 from auth.totp import TwoFactorAuth
 from auth.utils import encode_jwt, decode_jwt
 from models.users import User
@@ -95,12 +95,11 @@ def generate_qr(two_factor_auth: TwoFactorAuth = Depends(reg_user)):
 
 
 @router.post("/login", summary="Вход под УЗ пользователя")
-def login_user(creds: UserLoginSchema, request: Request, db: Session = Depends(get_db)):
+def login_user(creds: UserLoginSchema, db: Session = Depends(get_db)):
     dbUser = User.getUserByEmail(creds.email)
     if dbUser is None or not dbUser.verifyPassword(creds.password):
-        client_ip = request.client.host
         # Увеличиваем izmeritel' при неудачной попытке
-        failed_login_attempts.labels(ip=client_ip).inc()
+        failed_login_attempts.inc()
         print("failed_login_attempts: ", failed_login_attempts._value.get())
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
